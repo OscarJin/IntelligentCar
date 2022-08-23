@@ -2,7 +2,6 @@ import sensor, image, time
 import math
 import gc
 from pyb import UART
-import json
 
 
 ######  设置一些常数  ########
@@ -13,12 +12,12 @@ uart = UART(3, 19200)
 
 ######  函数定义  ######
 def DistanceMeasurement(r):
-    return measurement_const/r  #unit: cm
+    return (int)(measurement_const/r)  #precision: 1cm
 
 
 def AngleMeasurement(obj):
     d_pix = abs(obj.cx()-w/2)
-    return math.atan(d_pix * 2 / measurement_const) * 180 / math.pi
+    return (int)(math.atan(d_pix * 2 / measurement_const) * 180 * 100 / math.pi)  #precision:0.01deg
 
 
 ######  摄像头设置  ######
@@ -53,7 +52,7 @@ while(True):
            radius = (int)((b.w()+b.h()) / 4)
            img.draw_circle(b.cx(), b.cy(), radius, color=(0,255,0))
 
-    output_str = json.dumps([False, 0, 0])
+    output_str = '0+0+0'
     if(len(OrangeCircles) != 0):
         print(OrangeCircles)
         distance = []
@@ -63,10 +62,10 @@ while(True):
         dist_min = min(distance)
         dist_min_i = distance.index(dist_min)
         angle = AngleMeasurement(OrangeCircles[dist_min_i])
-        output_str=json.dumps([True, dist_min, angle])
+        output_str = '1+' + str(dist_min) + '+' + str(angle)
         print(output_str)
     else:
         print("Not Found!")
 
     uart.write(output_str)
-    time.sleep_ms(100)
+    time.sleep_ms(500)

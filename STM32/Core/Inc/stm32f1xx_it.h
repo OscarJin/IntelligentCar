@@ -56,6 +56,9 @@ void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 void TIM8_BRK_IRQHandler(void);
+void TIM8_UP_IRQHandler(void);
+void TIM8_TRG_COM_IRQHandler(void);
+void TIM8_CC_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

@@ -90,6 +90,7 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 //  HAL_TIM_Base_Start_IT(&htim8);
 //  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
 //  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
@@ -101,14 +102,10 @@ int main(void)
   while (1)
   {
 //	  motorC();
-	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 50);
-	  HAL_Delay(2000);
-	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 75);
-	  HAL_Delay(2000);
-	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 100);
-	  HAL_Delay(2000);
-	  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 75);
-	  HAL_Delay(2000);
+	  Servo_Control_DOWN(1);
+	  HAL_Delay(1000);
+	  Servo_Control_DOWN(3);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

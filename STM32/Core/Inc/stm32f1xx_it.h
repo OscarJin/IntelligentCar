@@ -27,7 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "BLUETOOTH.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -37,7 +37,12 @@
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+extern TIM_HandleTypeDef htim2;
+extern UART_HandleTypeDef huart2;
+int SysTickCnt = 0;
+extern int EncoderCnt;
+extern uint8_t EncoderDir;
+char str_buff[64];
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -60,6 +65,7 @@ void TIM1_UP_IRQHandler(void);
 void TIM1_TRG_COM_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);
 void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
 void TIM8_BRK_IRQHandler(void);
 void TIM8_UP_IRQHandler(void);
 void TIM8_TRG_COM_IRQHandler(void);

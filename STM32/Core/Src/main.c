@@ -47,6 +47,8 @@
 /* USER CODE BEGIN PV */
 uint8_t OpenMV_Rxbuf[15];
 ImageRecognitionRes ImgRes;
+int EncoderCnt;
+uint8_t EncoderDir;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,6 +93,8 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM1_Init();
   MX_USART1_UART_Init();
+  MX_TIM2_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   /*舵机TIM1*/
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -100,6 +104,8 @@ int main(void)
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
+  /*编码器TIM2*/
+  HAL_TIM_Base_Start_IT(&htim2);
   /*OpenMV USART1*/
   HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
   /* USER CODE END 2 */

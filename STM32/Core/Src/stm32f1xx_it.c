@@ -58,6 +58,7 @@
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim8;
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -189,7 +190,21 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
+  if(SysTickCnt == 20)
+  {
+	  SysTickCnt = 0;
+	  EncoderCnt = __HAL_TIM_GET_COUNTER(&htim2);
+	  EncoderDir = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);
 
+	  sprintf(str_buff, "speed:%d dir:%d", (int)EncoderCnt, (int)EncoderDir);
+	  transD(10);
+
+	  __HAL_TIM_SET_COUNTER(&htim2, 0);
+  }
+  else
+  {
+	  SysTickCnt++;
+  }
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -268,6 +283,20 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
 }
 
 /**

@@ -118,13 +118,14 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
 	//Receive OpenMV
 	if(UartHandle->Instance == USART1)
 	{
-		HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
 		ImgRes = Decode(OpenMV_Rxbuf);
+		HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
 	}
 }
+
 /* USER CODE END 1 */

@@ -46,7 +46,6 @@
 
 /* USER CODE BEGIN PV */
 uint8_t OpenMV_Rxbuf[15];
-const uint8_t OpenMV_Send[] = "1";
 ImageRecognitionRes ImgRes;
 /* USER CODE END PV */
 
@@ -97,12 +96,12 @@ int main(void)
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 //  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
   /*电机TIM8*/
-//  HAL_TIM_Base_Start_IT(&htim8);
-//  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
-//  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
-//  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
+  HAL_TIM_Base_Start_IT(&htim8);
+  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
   /*OpenMV USART1*/
-  HAL_UART_Transmit_IT(&huart1, OpenMV_Send, sizeof(OpenMV_Send));
+  HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
   /* USER CODE END 2 */
 
   /* Infinite loop */

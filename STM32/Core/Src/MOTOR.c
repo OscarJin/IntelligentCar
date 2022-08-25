@@ -7,7 +7,7 @@
 
 #include "MOTOR.h"
 
-#define Confine_Value 9999	//定义PWM限幅值
+#define Confine_Value 999	//定义PWM限幅值
 
 void motorC()
 {
@@ -39,8 +39,8 @@ void set_ccr(int16_t MA, int16_t MB)
 
 	if(Confine_Motor[0] >= 0)
 	{
-			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);
 	}
 	else
 	{

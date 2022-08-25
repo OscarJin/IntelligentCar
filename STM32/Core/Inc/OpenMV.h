@@ -5,8 +5,8 @@
  *      Author: Oscar Jin
  */
 
-#ifndef INC_OPENMV_DECODE_H_
-#define INC_OPENMV_DECODE_H_
+#ifndef INC_OPENMV_H_
+#define INC_OPENMV_H_
 
 #include <string.h>
 #include <stdlib.h>
@@ -18,6 +18,6 @@ typedef struct {
 	float angle;
 } ImageRecognitionRes;
 
-ImageRecognitionRes *Decode(char*);
+ImageRecognitionRes Decode(uint8_t *str);
 
-#endif /* INC_OPENMV_DECODE_H_ */
+#endif /* INC_OPENMV_H_ */

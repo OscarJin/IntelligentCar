@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -44,7 +45,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint8_t OpenMV_Rxbuf[15];
+const uint8_t OpenMV_Send[] = "1";
+ImageRecognitionRes ImgRes;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,24 +91,31 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM8_Init();
   MX_TIM1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+  /*舵机TIM1*/
+//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+  /*电机TIM8*/
 //  HAL_TIM_Base_Start_IT(&htim8);
 //  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
 //  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
 //  HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
+  /*OpenMV USART1*/
+  HAL_UART_Transmit_IT(&huart1, OpenMV_Send, sizeof(OpenMV_Send));
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  motorC();
-	  Servo_Control_DOWN(1);
-	  HAL_Delay(1000);
-	  Servo_Control_DOWN(3);
-	  HAL_Delay(1000);
+	  /**********测试TT马达**********/
+	  motorC();
+	  /**********测试舵机***********/
+//	  Servo_Control_DOWN(1);
+//	  HAL_Delay(1000);
+//	  Servo_Control_DOWN(3);
+//	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -45,7 +45,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t OpenMV_Rxbuf[15];
+uint8_t OpenMV_Rxbuf[10];
 ImageRecognitionRes ImgRes;
 int EncoderCnt;
 uint8_t EncoderDir;

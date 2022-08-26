@@ -9,16 +9,17 @@
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
-    char* copy = malloc(20);
+    char* copy = malloc(10);
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
-    char c[] = "+";
-	char *temp = strtok(copy, c);
 
-    res.find = temp[0];
-    temp = strtok(NULL, c);
+    res.find = copy[0];
+    char temp[6] = {""};
+    strncpy(temp, copy+1, 4);
     res.distance = atoi(temp);
-    temp = strtok(NULL, c);
+
+    strncpy(temp, copy+5, 5);
     res.angle = (float)atoi(temp) / 100;
+
 	return res;
 }

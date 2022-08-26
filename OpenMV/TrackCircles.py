@@ -52,9 +52,9 @@ while(True):
            radius = (int)((b.w()+b.h()) / 4)
            img.draw_circle(b.cx(), b.cy(), radius, color=(0,255,0))
 
-    output_str = '0+0+0'
+    output_str = '0'*10
     if(len(OrangeCircles) != 0):
-        print(OrangeCircles)
+        #print(OrangeCircles)
         distance = []
         for o in OrangeCircles:
             dist = DistanceMeasurement((o.w()+o.h()) / 4)
@@ -62,10 +62,10 @@ while(True):
         dist_min = min(distance)
         dist_min_i = distance.index(dist_min)
         angle = AngleMeasurement(OrangeCircles[dist_min_i])
-        output_str = '1+' + str(dist_min) + '+' + str(angle)
-        print(output_str)
-    else:
-        print("Not Found!")
+        output_str = '1' + str("%04d" % dist_min) + str("%05d" %angle)
+    #else:
+        #print("Not Found!")
 
     uart.write(output_str)
+    #print(output_str)
     time.sleep_ms(500)

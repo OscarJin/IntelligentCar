@@ -204,7 +204,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 	if(UartHandle->Instance == USART1)
 	{
 		ImgRes = Decode(OpenMV_Rxbuf);
-		HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
 	}
 }
 

@@ -43,6 +43,7 @@ int SysTickCnt = 0;
 extern int EncoderCnt;
 extern uint8_t EncoderDir;
 char str_buff[64];
+extern uint8_t OpenMV_Rxbuf[10];
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

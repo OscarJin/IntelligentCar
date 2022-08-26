@@ -196,8 +196,8 @@ void SysTick_Handler(void)
 	  EncoderCnt = __HAL_TIM_GET_COUNTER(&htim2);
 	  EncoderDir = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);
 
-	  sprintf(str_buff, "speed:%d dir:%d", (int)EncoderCnt, (int)EncoderDir);
-	  transD(10);
+//	  sprintf(str_buff, "speed:%d dir:%d", (int)EncoderCnt, (int)EncoderDir);
+//	  transD(10);
 
 	  __HAL_TIM_SET_COUNTER(&htim2, 0);
   }

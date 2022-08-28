@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "MOTOR.h"
 #include "SERVO.h"
+#include "PID.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +50,7 @@ uint8_t OpenMV_Rxbuf[10];
 ImageRecognitionRes ImgRes;
 int EncoderCnt;
 uint8_t EncoderDir;
+PID EncoderPID;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

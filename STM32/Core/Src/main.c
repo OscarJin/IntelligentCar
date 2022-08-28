@@ -99,6 +99,8 @@ int main(void)
   /*舵机TIM1*/
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+  Servo_Control_UP(0);
+  Servo_Control_DOWN(2);
   /*电机TIM8*/
   HAL_TIM_Base_Start_IT(&htim8);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);

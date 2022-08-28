@@ -14,4 +14,6 @@ void Servo_Control_UP(uint8_t mode);
 
 void Servo_Control_DOWN(uint8_t mode);
 
+void Dump(void);
+
 #endif /* INC_SERVO_H_ */

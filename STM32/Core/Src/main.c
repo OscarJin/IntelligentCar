@@ -97,8 +97,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   /*舵机TIM1*/
-//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-//  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
   /*电机TIM8*/
   HAL_TIM_Base_Start_IT(&htim8);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
@@ -117,10 +117,8 @@ int main(void)
 	  /**********测试TT马达**********/
 	  motorC();
 	  /**********测试舵机***********/
-//	  Servo_Control_DOWN(1);
-//	  HAL_Delay(1000);
-//	  Servo_Control_DOWN(3);
-//	  HAL_Delay(1000);
+	  Dump();
+	  HAL_Delay(3000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

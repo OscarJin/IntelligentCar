@@ -51,3 +51,17 @@ void Dump()
 	Servo_Control_UP(0);
 	Servo_Control_DOWN(2);
 }
+
+void Servo_Cam(uint8_t mode)
+{
+	//mode: 0-远，1-近
+	switch(mode)
+	{
+	case 0:
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 80);
+		break;
+	case 1:
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 160);
+		break;
+	}
+}

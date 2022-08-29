@@ -46,10 +46,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t OpenMV_Rxbuf[10];
+uint8_t OpenMV_Rxbuf[11];
 ImageRecognitionRes ImgRes;
-int EncoderCnt;
-uint8_t EncoderDir;
+int EncoderCnt_R;
+uint8_t EncoderDir_R;
+int EncoderCnt_L;
+uint8_t EncoderDir_L;
 PID EncoderPID;
 /* USER CODE END PV */
 
@@ -97,12 +99,15 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM2_Init();
   MX_USART2_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   /*舵机TIM1*/
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
   Servo_Control_UP(0);
   Servo_Control_DOWN(2);
+  Servo_Cam(0);
   /*电机TIM8*/
   HAL_TIM_Base_Start_IT(&htim8);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
@@ -121,8 +126,10 @@ int main(void)
 	  /**********测试TT马达**********/
 	  motorC();
 	  /**********测试舵机***********/
-	  Dump();
-	  HAL_Delay(3000);
+	  Servo_Cam(1);
+	  HAL_Delay(1000);
+	  Servo_Cam(0);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

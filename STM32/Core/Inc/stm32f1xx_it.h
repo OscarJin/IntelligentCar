@@ -38,7 +38,6 @@
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 extern TIM_HandleTypeDef htim2;
-extern UART_HandleTypeDef huart2;
 int SysTickCnt = 0;
 extern int EncoderCnt;
 extern uint8_t EncoderDir;

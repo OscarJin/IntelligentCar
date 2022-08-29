@@ -7,7 +7,16 @@
 
 #include "MOTOR.h"
 
+
 #define Confine_Value 999	//定义PWM限幅值
+
+extern int EncoderCnt_L;
+extern uint8_t EncoderDir_L;
+extern int EncoderCnt_R;
+extern uint8_t EncoderDir_R;
+
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim4;
 
 void motorC()
 {
@@ -63,4 +72,15 @@ void set_ccr(int16_t MA, int16_t MB)
 
 	TIM8->CCR1 = Confine_Motor[0];
 	TIM8->CCR2 = Confine_Motor[1];
+}
+
+void read_encoder()
+{
+	EncoderCnt_R = __HAL_TIM_GET_COUNTER(&htim2);
+	EncoderDir_R = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);
+	__HAL_TIM_SET_COUNTER(&htim2, 0);
+
+	EncoderCnt_L = __HAL_TIM_GET_COUNTER(&htim4);
+	EncoderDir_L = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4);
+	__HAL_TIM_SET_COUNTER(&htim4, 0);
 }

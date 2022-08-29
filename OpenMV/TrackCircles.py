@@ -16,7 +16,7 @@ def DistanceMeasurement(r):
 
 
 def AngleMeasurement(obj):
-    d_pix = abs(obj.cx()-w/2)
+    d_pix = obj.cx()-w/2
     return (int)(math.atan(d_pix * 2 / measurement_const) * 180 * 100 / math.pi)  #precision:0.01deg
 
 
@@ -52,7 +52,7 @@ while(True):
            radius = (int)((b.w()+b.h()) / 4)
            img.draw_circle(b.cx(), b.cy(), radius, color=(0,255,0))
 
-    output_str = '0'*10
+    output_str = '0'*11
     if(len(OrangeCircles) != 0):
         #print(OrangeCircles)
         distance = []
@@ -62,10 +62,15 @@ while(True):
         dist_min = min(distance)
         dist_min_i = distance.index(dist_min)
         angle = AngleMeasurement(OrangeCircles[dist_min_i])
-        output_str = '1' + str("%04d" % dist_min) + str("%05d" %angle)
+        sign = 0    #angle -R1+L0
+        if angle<=0:
+            sign = 1
+        else:
+            sign = 0
+        output_str = '1' + str("%04d" % dist_min) + str("%05d" %abs(angle)) + str(sign)
     #else:
         #print("Not Found!")
 
     uart.write(output_str)
-    #print(output_str)
+    print(output_str)
     time.sleep_ms(500)

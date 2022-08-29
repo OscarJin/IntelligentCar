@@ -8,11 +8,11 @@
 #ifndef INC_MOTOR_H_
 #define INC_MOTOR_H_
 
-#include "stm32f1xx_hal.h"
+#include "main.h"
 
 void motorC(void);
 int16_t *amp_confine(int16_t MA, int16_t MB);
 void set_ccr(int16_t MA, int16_t MB);
-int16_t *read_encoder(void);
+void read_encoder();
 
 #endif /* INC_MOTOR_H_ */

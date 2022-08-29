@@ -9,7 +9,7 @@
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
-    char* copy = malloc(10);
+    char* copy = malloc(11);
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
 
@@ -20,6 +20,8 @@ ImageRecognitionRes Decode(uint8_t *str)
 
     strncpy(temp, copy+5, 5);
     res.angle = (float)atoi(temp) / 100;
+
+    res.dir = atoi(copy+10);
 
 	return res;
 }

@@ -23,7 +23,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-int16_t PWM1=500, PWM2=-250;
+int16_t PWM1=500, PWM2=500;	//pwm1-R pwm2-L
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
@@ -255,7 +255,7 @@ void MX_TIM8_Init(void)
   {
     Error_Handler();
   }
-  sConfigOC.Pulse = 5000;
+  sConfigOC.Pulse = 500;
   if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();

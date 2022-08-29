@@ -126,10 +126,8 @@ int main(void)
 	  /**********测试TT马达**********/
 	  motorC();
 	  /**********测试舵机***********/
-	  Servo_Cam(1);
-	  HAL_Delay(1000);
-	  Servo_Cam(0);
-	  HAL_Delay(1000);
+//	  Dump();
+//	  HAL_Delay(5000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

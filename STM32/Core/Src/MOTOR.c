@@ -43,31 +43,32 @@ int16_t *amp_confine(int16_t MA, int16_t MB)
 
 void set_ccr(int16_t MA, int16_t MB)
 {
+	//MA-R MB-L
 	int16_t *Confine_Motor;
 	Confine_Motor=amp_confine(MA, MB);
 
-	if(Confine_Motor[0] >= 0)
+	if(Confine_Motor[0] <= 0)
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);
+		Confine_Motor[0] = -Confine_Motor[0];
 	}
 	else
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_SET);
-		Confine_Motor[0] = -Confine_Motor[0];
 	}
 
-	if(Confine_Motor[1] >= 0)
+	if(Confine_Motor[1] <= 0)
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_RESET);
+		Confine_Motor[1] = -Confine_Motor[1];
 	}
 	else
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_SET);
-		Confine_Motor[1] = -Confine_Motor[1];
 	}
 
 	TIM8->CCR1 = Confine_Motor[0];

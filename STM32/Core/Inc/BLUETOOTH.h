@@ -10,12 +10,11 @@
 
 #include "main.h"
 #include "stdio.h"
+#include "stdlib.h"
 
 extern UART_HandleTypeDef huart2;
 
 void SendInt(int a);
-void SendComma(void);
-void SendEnter(void);
 
 
 #endif /* INC_BLUETOOTH_H_ */

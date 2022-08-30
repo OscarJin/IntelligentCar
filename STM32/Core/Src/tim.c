@@ -727,7 +727,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
    	   Distance_L = T_L * 0.000001 * 170 * 100;
    	   Edge = 0;
    	   SendInt((int)Distance_L);
-   	   SendEnter();
    	   break;
    default: break;
   }
@@ -752,7 +751,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
     	Distance_R = T_R * 0.000001 * 170 * 100;
     	Edge = 0;
     	SendInt((int)Distance_R);
-    	SendEnter();
     	break;
 
     default: break;

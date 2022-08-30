@@ -31,6 +31,8 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "UltraSonic.h"
 #include "BLUETOOTH.h"
+#include "PID.h"
+#include "MOTOR.h"
 /* USER CODE END Includes */
 
 extern TIM_HandleTypeDef htim1;
@@ -64,7 +66,9 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
 
-//void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim);
+/*for PWM*/
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

@@ -23,7 +23,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-//int16_t PWM1=500, PWM2=500;	//pwm1-R pwm2-L
+extern int PWM_L, PWM_R;
 
 /****** UltraSonic ******/
 int UltraSonicCnt = 0;
@@ -758,10 +758,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   }
 }
 
-//void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
-//{
-//	if(htim->Instance != TIM8)
-//		return;
-//	set_ccr(PWM1, PWM2);
-//}
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+//	if(htim->Instance == TIM8)
+//		PID_Dist(80, 10);
+//	set_ccr(PWM_L, PWM_R);
+}
 /* USER CODE END 1 */

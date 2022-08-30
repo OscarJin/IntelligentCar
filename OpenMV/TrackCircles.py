@@ -5,14 +5,15 @@ from pyb import UART
 
 
 ######  设置一些常数  ########
-orange_threshold = (20, 90, 15, 60, 40, 99)
+orange_threshold = (20, 90, 15, 60, 20, 100)
 measurement_const = 1450
 uart = UART(3, 19200)
 
 
 ######  函数定义  ######
 def DistanceMeasurement(r):
-    return (int)(measurement_const/r)  #precision: 1cm
+    dist = math.sqrt((measurement_const/r)*(measurement_const/r) - 400.0)
+    return (int)(dist)  #precision: 1cm
 
 
 def AngleMeasurement(obj):

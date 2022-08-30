@@ -11,7 +11,7 @@
 #include "main.h"
 
 void motorC(void);
-int16_t *amp_confine(int16_t MA, int16_t MB);
+int16_t *amp_confine(int16_t MR, int16_t ML);
 void set_ccr(int16_t MA, int16_t MB);
 void read_encoder();
 

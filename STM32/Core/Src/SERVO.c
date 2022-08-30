@@ -58,10 +58,10 @@ void Servo_Cam(uint8_t mode)
 	switch(mode)
 	{
 	case 0:
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 80);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 105);
 		break;
 	case 1:
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 160);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 140);
 		break;
 	}
 }

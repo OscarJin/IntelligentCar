@@ -41,11 +41,11 @@ int16_t *amp_confine(int16_t MA, int16_t MB)
 	return Confine_Motor;
 }
 
-void set_ccr(int16_t MA, int16_t MB)
+void set_ccr(int16_t MR, int16_t ML)
 {
 	//MA-R MB-L
 	int16_t *Confine_Motor;
-	Confine_Motor=amp_confine(MA, MB);
+	Confine_Motor=amp_confine(MR, ML);
 
 	if(Confine_Motor[0] <= 0)
 	{

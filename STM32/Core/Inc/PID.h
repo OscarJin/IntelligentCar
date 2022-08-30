@@ -19,5 +19,6 @@ typedef struct{
 void Encoder_PID_init(PID* pid, int target);
 
 void PID_Calc(PID* pid, int encoder);
+void PID_Dist(float dist, float Kp);	//距离越远，速度越快
 
 #endif /* INC_PID_H_ */

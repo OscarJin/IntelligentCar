@@ -7,6 +7,9 @@
 
 #include "PID.h"
 #include "main.h"
+#include "MOTOR.h"
+
+extern int PWM_L, PWM_R;
 
 void Encoder_PID_init(PID* pid, int target)
 {
@@ -33,4 +36,10 @@ void PID_Calc(PID* pid, int encoder)
 	pid->PrevError = pid->LastError;
 	pid->LastError = ThisError;
 	pid->result += delta;
+}
+
+void PID_Dist(float dist, float Kp)//距离越远，速度越快
+{
+	int PWM_PID_Dist = (int) dist * Kp < 0 ? 0 : dist * Kp;
+	set_ccr(PWM_PID_Dist, PWM_PID_Dist);
 }

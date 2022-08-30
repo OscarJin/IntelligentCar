@@ -47,6 +47,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+int PWM_L = 600, PWM_R = 600;
 uint8_t OpenMV_Rxbuf[11];
 ImageRecognitionRes ImgRes;
 int EncoderCnt_R;
@@ -132,10 +133,9 @@ int main(void)
 
   /*超声TIM3&6*/
   HAL_TIM_Base_Start_IT(&htim3);
-  HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_1);
   HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_2);
-
+  HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */

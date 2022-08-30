@@ -100,6 +100,9 @@ int main(void)
   MX_TIM2_Init();
   MX_USART2_UART_Init();
   MX_TIM4_Init();
+  MX_TIM3_Init();
+  MX_TIM6_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
   /*舵机TIM1*/
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -124,7 +127,7 @@ int main(void)
   while (1)
   {
 	  /**********测试TT马达**********/
-	  motorC();
+//	  motorC();
 	  /**********测试舵机***********/
 //	  Dump();
 //	  HAL_Delay(5000);

@@ -17,18 +17,31 @@
   ******************************************************************************
   */
 
-#include "MOTOR.h"
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-int16_t PWM1=500, PWM2=500;	//pwm1-R pwm2-L
+//int16_t PWM1=500, PWM2=500;	//pwm1-R pwm2-L
+
+/****** UltraSonic ******/
+int UltraSonicCnt = 0;
+uint8_t US_LeftRight = 0;	//Left-1 Right-0
+uint8_t Edge = 0;	//Rising-0 Falling-1
+int t1_L, t2_L, T_L;
+float Distance_L;
+int t1_R, t2_R, T_R;
+float Distance_R;
+
+
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim8;
 
 /* TIM1 init function */
@@ -154,6 +167,63 @@ void MX_TIM2_Init(void)
   /* USER CODE END TIM2_Init 2 */
 
 }
+/* TIM3 init function */
+void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_IC_InitTypeDef sConfigIC = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 71;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 2000;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_ConfigChannel(&htim3, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
 /* TIM4 init function */
 void MX_TIM4_Init(void)
 {
@@ -196,6 +266,39 @@ void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
+
+}
+/* TIM6 init function */
+void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 7199;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 499;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
 
 }
 /* TIM8 init function */
@@ -281,6 +384,7 @@ void MX_TIM8_Init(void)
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   if(tim_baseHandle->Instance==TIM1)
   {
   /* USER CODE BEGIN TIM1_MspInit 0 */
@@ -301,6 +405,46 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM1_MspInit 1 */
 
   /* USER CODE END TIM1_MspInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM3)
+  {
+  /* USER CODE BEGIN TIM3_MspInit 0 */
+
+  /* USER CODE END TIM3_MspInit 0 */
+    /* TIM3 clock enable */
+    __HAL_RCC_TIM3_CLK_ENABLE();
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**TIM3 GPIO Configuration
+    PA6     ------> TIM3_CH1
+    PA7     ------> TIM3_CH2
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* TIM3 interrupt Init */
+    HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM3_IRQn);
+  /* USER CODE BEGIN TIM3_MspInit 1 */
+
+  /* USER CODE END TIM3_MspInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM6)
+  {
+  /* USER CODE BEGIN TIM6_MspInit 0 */
+
+  /* USER CODE END TIM6_MspInit 0 */
+    /* TIM6 clock enable */
+    __HAL_RCC_TIM6_CLK_ENABLE();
+
+    /* TIM6 interrupt Init */
+    HAL_NVIC_SetPriority(TIM6_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM6_IRQn);
+  /* USER CODE BEGIN TIM6_MspInit 1 */
+
+  /* USER CODE END TIM6_MspInit 1 */
   }
   else if(tim_baseHandle->Instance==TIM8)
   {
@@ -446,6 +590,40 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
   /* USER CODE END TIM1_MspDeInit 1 */
   }
+  else if(tim_baseHandle->Instance==TIM3)
+  {
+  /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+  /* USER CODE END TIM3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM3_CLK_DISABLE();
+
+    /**TIM3 GPIO Configuration
+    PA6     ------> TIM3_CH1
+    PA7     ------> TIM3_CH2
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_6|GPIO_PIN_7);
+
+    /* TIM3 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(TIM3_IRQn);
+  /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+  /* USER CODE END TIM3_MspDeInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM6)
+  {
+  /* USER CODE BEGIN TIM6_MspDeInit 0 */
+
+  /* USER CODE END TIM6_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM6_CLK_DISABLE();
+
+    /* TIM6 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(TIM6_IRQn);
+  /* USER CODE BEGIN TIM6_MspDeInit 1 */
+
+  /* USER CODE END TIM6_MspDeInit 1 */
+  }
   else if(tim_baseHandle->Instance==TIM8)
   {
   /* USER CODE BEGIN TIM8_MspDeInit 0 */
@@ -507,10 +685,81 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
 }
 
 /* USER CODE BEGIN 1 */
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+
+/******UltraSonic******/
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance != TIM8)
-		return;
-	set_ccr(PWM1, PWM2);
+	if(htim->Instance == TIM3)
+		UltraSonicCnt++;
+	else if(htim->Instance == TIM6)
+	{
+	  if(US_LeftRight == 0)
+	  {
+		  US_LeftRight = 1;
+		  Ultrasonic_Trig_L();
+	  }
+	  else
+	  {
+		  US_LeftRight = 0;
+		  Ultrasonic_Trig_R();
+	  }
+	}
+	  //z_angle = get_angle_IMU();
 }
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+ if((htim->Instance == TIM3) && (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1))
+ {
+   switch(Edge)
+   {
+   case 0:
+	   t1_L = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_1);
+	   __HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_FALLING);
+	   UltraSonicCnt = 0;
+	   Edge = 1;
+	   break;
+
+   case 1:
+	   t2_L = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_1) + UltraSonicCnt*2000;
+   	   T_L = t2_L - t1_L;
+   	   __HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_RISING);
+   	   Distance_L = T_L * 0.000001 * 170 * 100;
+   	   Edge = 0;
+   	   break;
+   default: break;
+  }
+ }
+
+ if((htim->Instance ==TIM3) && (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2))
+ {
+    //counter = counter+1;
+    switch(Edge){
+
+    case 0:
+    	t1_R = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_2);
+    	__HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_2,TIM_INPUTCHANNELPOLARITY_FALLING);
+    	UltraSonicCnt = 0;
+    	Edge = 1;
+    	break;
+
+    case 1:
+    	t2_R = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_2) + UltraSonicCnt*2000;
+    	T_R = t2_R - t1_R;
+    	__HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_2,TIM_INPUTCHANNELPOLARITY_RISING);
+    	Distance_R = T_R * 0.000001 * 170 * 100;
+    	Edge = 0;
+    	break;
+
+    default: break;
+   }
+  }
+}
+
+//void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+//{
+//	if(htim->Instance != TIM8)
+//		return;
+//	set_ccr(PWM1, PWM2);
+//}
 /* USER CODE END 1 */

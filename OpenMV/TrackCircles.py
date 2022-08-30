@@ -36,14 +36,12 @@ gc.enable()
 ###### 主循环  ######
 while(True):
     clock.tick()
-    #if uart.any():
-        #if uart.readline().decode() != '1':
-            #continue
-    #else:
-        #continue
 
-    OrangeCircles = []
+    output_str = '0'*11
     img = sensor.snapshot().lens_corr(1.8)
+
+    ###### 寻找小球 ######
+    OrangeCircles = []
     blobs = img.find_blobs([orange_threshold], x_stride=4, pixels_threshold=40, merge=True)
 
     if blobs:
@@ -52,7 +50,7 @@ while(True):
            radius = (int)((b.w()+b.h()) / 4)
            img.draw_circle(b.cx(), b.cy(), radius, color=(0,255,0))
 
-    output_str = '0'*11
+
     if(len(OrangeCircles) != 0):
         #print(OrangeCircles)
         distance = []
@@ -70,6 +68,7 @@ while(True):
         output_str = '1' + str("%04d" % dist_min) + str("%05d" %abs(angle)) + str(sign)
     #else:
         #print("Not Found!")
+
 
     uart.write(output_str)
     print(output_str)

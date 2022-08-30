@@ -16,7 +16,7 @@ typedef struct {
 	uint8_t find;
 	int distance;
 	float angle;
-	uint8_t dir;	//L0R1
+	uint8_t dir;	//L-0 R-1
 } ImageRecognitionRes;
 
 ImageRecognitionRes Decode(uint8_t *str);

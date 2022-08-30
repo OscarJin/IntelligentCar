@@ -28,6 +28,7 @@
 #include "SERVO.h"
 #include "PID.h"
 #include "BLUETOOTH.h"
+#include "IMU.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +48,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+
 int PWM_L = 600, PWM_R = 600;
 uint8_t OpenMV_Rxbuf[11];
 ImageRecognitionRes ImgRes;
@@ -58,6 +61,9 @@ PID EncoderPID;
 
 float Distance_L;
 float Distance_R;
+
+float angle;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,7 +100,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  Init_IMU();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -109,7 +115,6 @@ int main(void)
   MX_TIM6_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
-
 
   /*舵机TIM1*/
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -133,9 +138,10 @@ int main(void)
 
   /*超声TIM3&6*/
   HAL_TIM_Base_Start_IT(&htim3);
-  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_1);
-  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_2);
+//  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_1);
+//  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_2);
   HAL_TIM_Base_Start_IT(&htim6);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -147,6 +153,7 @@ int main(void)
 	  /**********测试舵机***********/
 //	  Dump();
 //	  HAL_Delay(5000);
+	  angle = Get_Angle_IMU();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

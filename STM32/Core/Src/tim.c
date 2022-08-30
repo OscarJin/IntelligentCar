@@ -185,7 +185,7 @@ void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 71;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2000;
+  htim3.Init.Period = 1999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -421,7 +421,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     */
     GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* TIM3 interrupt Init */
@@ -697,11 +697,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  {
 		  US_LeftRight = 1;
 		  Ultrasonic_Trig_L();
+		  HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_1);
 	  }
 	  else
 	  {
 		  US_LeftRight = 0;
 		  Ultrasonic_Trig_R();
+		  HAL_TIM_IC_Start_IT(&htim3,TIM_CHANNEL_2);
 	  }
 	}
 	  //z_angle = get_angle_IMU();
@@ -722,6 +724,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
    case 1:
 	   t2_L = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_1) + UltraSonicCnt*2000;
+	   HAL_TIM_IC_Stop_IT(htim, TIM_CHANNEL_1);
    	   T_L = t2_L - t1_L;
    	   __HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_RISING);
    	   Distance_L = T_L * 0.000001 * 170 * 100;
@@ -746,6 +749,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
     case 1:
     	t2_R = HAL_TIM_ReadCapturedValue(htim,TIM_CHANNEL_2) + UltraSonicCnt*2000;
+    	HAL_TIM_IC_Stop_IT(htim, TIM_CHANNEL_2);
     	T_R = t2_R - t1_R;
     	__HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_2,TIM_INPUTCHANNELPOLARITY_RISING);
     	Distance_R = T_R * 0.000001 * 170 * 100;
@@ -761,7 +765,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
 //	if(htim->Instance == TIM8)
-//		PID_Dist(80, 10);
-//	set_ccr(PWM_L, PWM_R);
+//		set_ccr(600, 600);
 }
 /* USER CODE END 1 */

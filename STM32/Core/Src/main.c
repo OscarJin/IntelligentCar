@@ -27,6 +27,7 @@
 #include "MOTOR.h"
 #include "SERVO.h"
 #include "PID.h"
+#include "BLUETOOTH.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +54,9 @@ uint8_t EncoderDir_R;
 int EncoderCnt_L;
 uint8_t EncoderDir_L;
 PID EncoderPID;
+
+float Distance_L;
+float Distance_R;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,6 +108,8 @@ int main(void)
   MX_TIM6_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
+
+
   /*舵机TIM1*/
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
@@ -111,15 +117,24 @@ int main(void)
   Servo_Control_UP(0);
   Servo_Control_DOWN(2);
   Servo_Cam(0);
+
   /*电机TIM8*/
   HAL_TIM_Base_Start_IT(&htim8);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
+
   /*编码器TIM2*/
   HAL_TIM_Base_Start_IT(&htim2);
+
   /*OpenMV USART1*/
   HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
+
+  /*超声TIM3&6*/
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -30,9 +30,9 @@ int UltraSonicCnt = 0;
 uint8_t US_LeftRight = 0;	//Left-1 Right-0
 uint8_t Edge = 0;	//Rising-0 Falling-1
 int t1_L, t2_L, T_L;
-float Distance_L;
+extern float Distance_L;
 int t1_R, t2_R, T_R;
-float Distance_R;
+extern float Distance_R;
 
 
 /* USER CODE END 0 */
@@ -726,6 +726,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
    	   __HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_1,TIM_INPUTCHANNELPOLARITY_RISING);
    	   Distance_L = T_L * 0.000001 * 170 * 100;
    	   Edge = 0;
+   	   SendInt((int)Distance_L);
+   	   SendEnter();
    	   break;
    default: break;
   }
@@ -749,6 +751,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
     	__HAL_TIM_SET_CAPTUREPOLARITY(htim,TIM_CHANNEL_2,TIM_INPUTCHANNELPOLARITY_RISING);
     	Distance_R = T_R * 0.000001 * 170 * 100;
     	Edge = 0;
+    	SendInt((int)Distance_R);
+    	SendEnter();
     	break;
 
     default: break;

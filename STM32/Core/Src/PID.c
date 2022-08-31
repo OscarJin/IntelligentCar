@@ -17,14 +17,14 @@ void Encoder_PID_init(PID* pid, int target)
 	pid->Ki = 0;
 	pid->Kd = 0;
 	pid->target = target;
-	pid->result = target;
+	pid->result = 0;
 	pid->LastError = pid->PrevError = 0;
 }
 
-void PID_Calc(PID* pid, int encoder)
+void PID_Calc(PID* pid, int measure)
 {
 	//Get error
-	int ThisError = pid->target - encoder;
+	int ThisError = pid->target - measure;
 
 	//Calculate Increment
 	int PError = ThisError - pid->LastError;

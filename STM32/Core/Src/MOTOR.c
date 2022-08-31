@@ -6,14 +6,12 @@
  */
 
 #include "MOTOR.h"
-
+#define PI 3.1415926
 
 #define Confine_Value 999	//定义PWM限幅值
 
-extern int EncoderCnt_L;
-extern uint8_t EncoderDir_L;
-extern int EncoderCnt_R;
-extern uint8_t EncoderDir_R;
+extern float EncoderDist_L, EncoderDist_R;
+extern uint8_t EncoderDir_L, EncoderDir_R;
 
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
@@ -50,13 +48,13 @@ void set_ccr(int16_t MR, int16_t ML)
 	if(Confine_Motor[0] <= 0)
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);
 		Confine_Motor[0] = -Confine_Motor[0];
 	}
 	else
 	{
 		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_SET);
 	}
 
 	if(Confine_Motor[1] <= 0)
@@ -77,11 +75,19 @@ void set_ccr(int16_t MR, int16_t ML)
 
 void read_encoder()
 {
-	EncoderCnt_R = __HAL_TIM_GET_COUNTER(&htim2);
+	int Cnt_R = 65536-__HAL_TIM_GET_COUNTER(&htim2);
+	EncoderDist_R = EncoderCnt_to_Dist(Cnt_R);
 	EncoderDir_R = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);
-	__HAL_TIM_SET_COUNTER(&htim2, 0);
 
-	EncoderCnt_L = __HAL_TIM_GET_COUNTER(&htim4);
+
+	int Cnt_L = __HAL_TIM_GET_COUNTER(&htim4);
+	EncoderDist_L = EncoderCnt_to_Dist(Cnt_L);
 	EncoderDir_L = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4);
+	__HAL_TIM_SET_COUNTER(&htim2, 0);
 	__HAL_TIM_SET_COUNTER(&htim4, 0);
+}
+
+float EncoderCnt_to_Dist(int cnt)
+{
+	return ((float)cnt) * PI * 6.5 / 224.5;
 }

@@ -38,9 +38,8 @@
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 extern TIM_HandleTypeDef htim2;
-int SysTickCnt = 0;
-extern int EncoderCnt;
-extern uint8_t EncoderDir;
+extern float EncoderDist_L, EncoderDist_R;
+extern uint8_t EncoderDir_L, EncoderDir_R;
 char str_buff[64];
 extern uint8_t OpenMV_Rxbuf[10];
 /* USER CODE END EC */

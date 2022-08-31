@@ -22,6 +22,8 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "MOTOR.h"
+#include "BLUETOOTH.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +43,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+int EncoderSysTickCnt = 0;
+int BluetoothSysTickCnt = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -192,19 +195,24 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-  if(SysTickCnt == 20)
-  {
-	  SysTickCnt = 0;
-
-
-//	  sprintf(str_buff, "speed:%d dir:%d", (int)EncoderCnt, (int)EncoderDir);
-//	  transD(10);
-
-  }
-  else
-  {
-	  SysTickCnt++;
-  }
+//  if(EncoderSysTickCnt == 20)
+//  {
+//	  EncoderSysTickCnt = 0;
+//	  read_encoder();
+//  }
+//  else
+//  {
+//	  EncoderSysTickCnt++;
+//  }
+//
+//  if(BluetoothSysTickCnt == 1005)
+//  {
+//	  BluetoothSysTickCnt = 0;
+//	  SendInt((int)(EncoderDist_R*50));
+//	  SendInt((int)(EncoderDist_L*50));
+//  }
+//  else
+//	  BluetoothSysTickCnt++;
   /* USER CODE END SysTick_IRQn 1 */
 }
 

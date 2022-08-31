@@ -49,20 +49,27 @@
 
 /* USER CODE BEGIN PV */
 
-
+/***电机***/
 int PWM_L = 600, PWM_R = 600;
-uint8_t OpenMV_Rxbuf[11];
-ImageRecognitionRes ImgRes;
-int EncoderCnt_R;
+
+float EncoderDist_R;	//采样时间走过的距�??
 uint8_t EncoderDir_R;
-int EncoderCnt_L;
+float EncoderDist_L;
 uint8_t EncoderDir_L;
 PID EncoderPID;
 
+/***超声***/
 float Distance_L;
 float Distance_R;
 
-float angle;
+/***IMU***/
+float CarAngle;
+
+/***OpenMV***/
+uint8_t OpenMV_Rxbuf[11];
+ImageRecognitionRes ImgRes;
+
+
 
 /* USER CODE END PV */
 
@@ -130,6 +137,10 @@ int main(void)
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_3);
 
+  /*编码器TIM2 TIM4*/
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+
   /*编码器TIM2*/
   HAL_TIM_Base_Start_IT(&htim2);
 
@@ -137,10 +148,8 @@ int main(void)
   HAL_UART_Receive_IT(&huart1, OpenMV_Rxbuf, sizeof(OpenMV_Rxbuf));
 
   /*超声TIM3&6*/
-  HAL_TIM_Base_Start_IT(&htim3);
-//  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_1);
-//  HAL_TIM_IC_Start_IT(&htim3, TIM_CHANNEL_2);
-  HAL_TIM_Base_Start_IT(&htim6);
+  HAL_TIM_Base_Start_IT(&htim3);	//输入捕获
+  HAL_TIM_Base_Start_IT(&htim6);	//定时中断
 
   /* USER CODE END 2 */
 
@@ -148,12 +157,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  /**********测试TT马达**********/
-//	  motorC();
-	  /**********测试舵机***********/
-//	  Dump();
-//	  HAL_Delay(5000);
-	  angle = Get_Angle_IMU();
+	  CarAngle = Get_Angle_IMU();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

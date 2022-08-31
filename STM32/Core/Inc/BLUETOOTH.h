@@ -15,6 +15,6 @@
 extern UART_HandleTypeDef huart2;
 
 void SendInt(int a);
-
+void SendEnter(void);
 
 #endif /* INC_BLUETOOTH_H_ */

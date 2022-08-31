@@ -40,6 +40,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BOUNDARY_THRESHOLD 15
+#define BALL_ANGLE_THRESHOLD 60
+#define BALL_BLIND_DIST 10
+#define CRUISE_PWM 700
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,6 +61,7 @@ uint8_t EncoderDir_R;
 float EncoderDist_L;
 uint8_t EncoderDir_L;
 PID EncoderPID_L, EncoderPID_R;
+uint8_t Open_PID = 0;
 
 /***超声***/
 float Distance_L;
@@ -70,12 +74,13 @@ ImageRecognitionRes ImgRes;
 /***Motion Control***/
 int State;
 /*
- * 1-非边界转弯找�??
- * 2-转弯对准�??
- * 3-直行接近�??
+ * 1-非边界转弯找�???????
+ * 2-转弯对准�???????
+ * 3-直行接近�???????
  * 4-抓球
- * 5-�??
+ * 5-�???????
 */
+int CatchBallSubState;
 struct {
 	float x;
 	float y;
@@ -92,6 +97,8 @@ struct {
 } CurrentInfo;
 
 int TurnTimes = 0;
+
+int BallCatch = 0;
 
 
 /* USER CODE END PV */
@@ -130,7 +137,9 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  Init_IMU();
+//  Init_IMU();
+  Encoder_PID_init(&EncoderPID_L, 1.5);
+  Encoder_PID_init(&EncoderPID_R, 1.5);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -144,8 +153,11 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM6_Init();
   MX_UART4_Init();
-  MX_TIM5_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
+
+  /*State Control 100ms*/
+  HAL_TIM_Base_Start_IT(&htim7);
 
   /*舵机TIM1*/
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -175,9 +187,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3);	//输入捕获
   HAL_TIM_Base_Start_IT(&htim6);	//定时中断
 
-  /*State Control 100ms*/
-  HAL_TIM_Base_Start(&htim5);
-
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -185,22 +195,96 @@ int main(void)
   while (1)
   {
 //	  motorC();
-
-	  float CarAngle = Get_Angle_IMU();
-
-	  if(StateCnt == 1)
+	  if(StateCnt != 0)
 	  {
-		  //赋值
+		  //赋�??
 		  CurrentInfo.img = ImgRes;
 		  CurrentInfo.dist_L = Distance_L;
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
 
-		  if(CurrentInfo.img.find_green == 0 && CurrentInfo.img.find_ball == 0 && TurnTimes < 7 && CurrentInfo.dist_L > BOUNDARY_THRESHOLD)
+		  if(CurrentInfo.img.find_ball == 0 && TurnTimes < 7/* && CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD*/)
+			  State = 1;
+		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD)
+			  State = 2;
+		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST)
+			  State = 3;
+		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST)
 		  {
-
+			  State = 4;
+			  CatchBallSubState = 1;
 		  }
 
+		  switch(State)
+		  {
+		  case 1:
+			  Open_PID = 0;
+			  TurnTimes++;
+			  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+			  StateCnt = 0;
+			  break;
+		  case 2:
+			  Open_PID = 0;
+			  if(CurrentInfo.img.dir == 0)	//ball on the left
+				  set_ccr(CRUISE_PWM, -CRUISE_PWM);
+			  else
+				  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+			  StateCnt = 0;
+			  break;
+		  case 3:
+			  Open_PID = 1;
+			  StateCnt = 0;
+			  break;
+		  case 4:
+			  Open_PID = 0;
+			  switch(CatchBallSubState)
+			  {
+			  case 1:
+				  set_ccr(0, 0);
+				  if(CatchCnt < 6)
+					  Servo_Control_DOWN(1);
+				  else
+				  {
+					  CatchBallSubState = 2;
+					  CatchCnt = 0;
+					  StateCnt = 0;
+				  }
+				  break;
+			  case 2:
+				  if(CatchCnt < 6)
+					  Servo_Cam(1);
+				  else
+				  {
+					  CatchBallSubState = 3;
+					  CatchCnt = 0;
+					  StateCnt = 0;
+				  }
+				  break;
+			  case 3:
+				  if(CatchCnt < 6)
+					  Open_PID = 1;
+				  else
+				  {
+					  CatchBallSubState = 4;
+					  CatchCnt = 0;
+					  StateCnt = 0;
+				  }
+				  break;
+			  case 4:
+				  if(CatchCnt < 5)
+					  Servo_Control_DOWN(2);
+				  else
+				  {
+					  Servo_Cam(0);
+					  BallCatch++;
+					  CatchBallSubState = 1;
+					  CatchCnt = 0;
+					  StateCnt = 0;
+				  }
+				  break;
+			  }
+			  break;
+		  }
 	  }
     /* USER CODE END WHILE */
 

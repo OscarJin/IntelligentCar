@@ -26,7 +26,7 @@ def AngleMeasurement(obj):
 
 
 def BallinGreen(obj):
-    green_roi = (obj.x(), obj.y()-obj.h(), obj.w(), obj.h())
+    green_roi = (obj.x(), 0, obj.w(), obj.h())
     if img.find_blobs([green_threshold], roi=green_roi, x_stride=2, pixels_threshold=20, merge=True):
         return True
     else:
@@ -40,7 +40,7 @@ sensor.set_framesize(sensor.SVGA)
 sensor.set_auto_whitebal(True)
 w = 800
 h = 600   #w,h of HD
-sensor.skip_frames(time = 2000)
+#sensor.skip_frames(time = 2000)
 sensor.set_auto_gain(False) # must be turned off for color tracking
 sensor.set_auto_whitebal(False) # must be turned off for color tracking
 clock = time.clock()
@@ -51,7 +51,7 @@ gc.enable() #auto garbage collection
 while(True):
     clock.tick()
 
-    output_str = '0'*12
+    output_str = '0'*11
     img = sensor.snapshot().lens_corr(1.8)
 
     ###### output format ######
@@ -105,4 +105,3 @@ while(True):
 
     uart.write(output_str)
     print(output_str)
-    time.sleep_ms(100)

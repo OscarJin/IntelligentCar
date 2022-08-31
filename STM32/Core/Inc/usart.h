@@ -30,6 +30,7 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 #include "OpenMV.h"
+#include "BLUETOOTH.h"
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart4;

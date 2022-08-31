@@ -13,7 +13,7 @@ extern int PWM_L, PWM_R;
 
 void Encoder_PID_init(PID* pid, float target)
 {
-	pid->Kp = 30;
+	pid->Kp = 25;
 	pid->Ki = 0;
 	pid->Kd = 0;
 	pid->target = target;

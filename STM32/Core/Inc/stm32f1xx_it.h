@@ -45,6 +45,7 @@ extern uint8_t EncoderDir_L, EncoderDir_R;
 char str_buff[64];
 extern uint8_t OpenMV_Rxbuf[10];
 extern PID EncoderPID_L, EncoderPID_R;
+extern uint8_t Open_PID;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -68,13 +69,12 @@ void TIM1_TRG_COM_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);
 void TIM3_IRQHandler(void);
 void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
 void TIM8_BRK_IRQHandler(void);
 void TIM8_UP_IRQHandler(void);
 void TIM8_TRG_COM_IRQHandler(void);
 void TIM8_CC_IRQHandler(void);
-void TIM5_IRQHandler(void);
 void TIM6_IRQHandler(void);
+void TIM7_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

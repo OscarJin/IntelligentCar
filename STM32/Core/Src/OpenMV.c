@@ -9,11 +9,11 @@
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
-    char* copy = malloc(11);
+    char* copy = malloc(12);
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
 
-    res.find = copy[0];
+    res.find_ball = copy[0];
     char temp[6] = {""};
     strncpy(temp, copy+1, 4);
     res.distance = atoi(temp);

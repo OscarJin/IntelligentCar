@@ -13,10 +13,11 @@
 #include "main.h"
 
 typedef struct {
-	uint8_t find;
+	uint8_t find_ball;
 	int distance;
 	float angle;
 	uint8_t dir;	//L-0 R-1
+	uint8_t find_green;
 } ImageRecognitionRes;
 
 ImageRecognitionRes Decode(uint8_t *str);

@@ -9,16 +9,16 @@
 #define INC_PID_H_
 
 typedef struct{
-	int target;
+	float target;
 	int result;
-	int Kp, Ki, Kd;
-	int LastError;
-	int PrevError;
+	float Kp, Ki, Kd;
+	float LastError;
+	float PrevError;
 } PID;
 
-void Encoder_PID_init(PID* pid, int target);
+void Encoder_PID_init(PID* pid, float target);
 
-void PID_Calc(PID* pid, int encoder);
-void PID_Dist(float dist, float Kp);	//距离越远，速度越快
+void PID_Calc(PID* pid, float encoder);
+//void PID_Dist(float dist, float Kp);
 
 #endif /* INC_PID_H_ */

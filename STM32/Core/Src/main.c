@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "math.h"
 #include "MOTOR.h"
 #include "SERVO.h"
 #include "PID.h"
@@ -38,6 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define BOUNDARY_THRESHOLD 15
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,25 +52,46 @@
 /* USER CODE BEGIN PV */
 
 /***电机***/
-int PWM_L = 600, PWM_R = 600;
 
-float EncoderDist_R;	//采样时间走过的距�??
+float EncoderDist_R;	//采样时间Distance
 uint8_t EncoderDir_R;
 float EncoderDist_L;
 uint8_t EncoderDir_L;
-PID EncoderPID;
+PID EncoderPID_L, EncoderPID_R;
 
 /***超声***/
 float Distance_L;
 float Distance_R;
 
-/***IMU***/
-float CarAngle;
-
 /***OpenMV***/
-uint8_t OpenMV_Rxbuf[11];
+uint8_t OpenMV_Rxbuf[12];
 ImageRecognitionRes ImgRes;
 
+/***Motion Control***/
+int State;
+/*
+ * 1-非边界转弯找�??
+ * 2-转弯对准�??
+ * 3-直行接近�??
+ * 4-抓球
+ * 5-�??
+*/
+struct {
+	float x;
+	float y;
+} Position;
+
+int StateCnt = 0;
+int CatchCnt = 0;	//State4 Counter
+
+struct {
+	ImageRecognitionRes img;
+	float dist_L;
+	float dist_R;
+	float angle;
+} CurrentInfo;
+
+int TurnTimes = 0;
 
 
 /* USER CODE END PV */
@@ -121,6 +144,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM6_Init();
   MX_UART4_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   /*舵机TIM1*/
@@ -151,13 +175,33 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim3);	//输入捕获
   HAL_TIM_Base_Start_IT(&htim6);	//定时中断
 
+  /*State Control 100ms*/
+  HAL_TIM_Base_Start(&htim5);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  CarAngle = Get_Angle_IMU();
+//	  motorC();
+
+	  float CarAngle = Get_Angle_IMU();
+
+	  if(StateCnt == 1)
+	  {
+		  //赋值
+		  CurrentInfo.img = ImgRes;
+		  CurrentInfo.dist_L = Distance_L;
+		  CurrentInfo.dist_R = Distance_R;
+		  CurrentInfo.angle = Get_Angle_IMU();
+
+		  if(CurrentInfo.img.find_green == 0 && CurrentInfo.img.find_ball == 0 && TurnTimes < 7 && CurrentInfo.dist_L > BOUNDARY_THRESHOLD)
+		  {
+
+		  }
+
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

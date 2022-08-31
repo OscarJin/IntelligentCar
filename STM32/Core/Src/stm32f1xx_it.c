@@ -22,8 +22,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "MOTOR.h"
-#include "BLUETOOTH.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +44,7 @@
 /* USER CODE BEGIN PV */
 int EncoderSysTickCnt = 0;
 int BluetoothSysTickCnt = 0;
+int StateSysTickCnt = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +60,7 @@ int BluetoothSysTickCnt = 0;
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim5;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim8;
 extern UART_HandleTypeDef huart1;
@@ -195,17 +196,21 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
+
 //  if(EncoderSysTickCnt == 20)
 //  {
 //	  EncoderSysTickCnt = 0;
+////	  set_ccr(EncoderPID_R.result, EncoderPID_L.result);
 //	  read_encoder();
+//	  PID_Calc(&EncoderPID_L, EncoderDist_L);
+//	  PID_Calc(&EncoderPID_R, EncoderDist_R);
 //  }
 //  else
 //  {
 //	  EncoderSysTickCnt++;
 //  }
-//
-//  if(BluetoothSysTickCnt == 1005)
+
+//  if(BluetoothSysTickCnt == 505)
 //  {
 //	  BluetoothSysTickCnt = 0;
 //	  SendInt((int)(EncoderDist_R*50));
@@ -375,6 +380,20 @@ void TIM8_CC_IRQHandler(void)
   /* USER CODE BEGIN TIM8_CC_IRQn 1 */
 
   /* USER CODE END TIM8_CC_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM5 global interrupt.
+  */
+void TIM5_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM5_IRQn 0 */
+
+  /* USER CODE END TIM5_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim5);
+  /* USER CODE BEGIN TIM5_IRQn 1 */
+
+  /* USER CODE END TIM5_IRQn 1 */
 }
 
 /**

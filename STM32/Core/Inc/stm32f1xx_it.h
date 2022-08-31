@@ -27,7 +27,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "MOTOR.h"
+#include "BLUETOOTH.h"
+#include "PID.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -42,6 +44,7 @@ extern float EncoderDist_L, EncoderDist_R;
 extern uint8_t EncoderDir_L, EncoderDir_R;
 char str_buff[64];
 extern uint8_t OpenMV_Rxbuf[10];
+extern PID EncoderPID_L, EncoderPID_R;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -70,6 +73,7 @@ void TIM8_BRK_IRQHandler(void);
 void TIM8_UP_IRQHandler(void);
 void TIM8_TRG_COM_IRQHandler(void);
 void TIM8_CC_IRQHandler(void);
+void TIM5_IRQHandler(void);
 void TIM6_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 

@@ -15,7 +15,7 @@ void Servo_Control_UP(uint8_t mode)
 	switch(mode)
 	{
 	case 0:
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 60);
+		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 80);
 		break;
 	case 1:
 		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 200);

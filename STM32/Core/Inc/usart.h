@@ -39,7 +39,7 @@ extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN Private defines */
-extern uint8_t OpenMV_Rxbuf[11];
+extern uint8_t OpenMV_Rxbuf[12];
 extern ImageRecognitionRes ImgRes;
 /* USER CODE END Private defines */
 

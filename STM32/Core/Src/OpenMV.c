@@ -13,7 +13,7 @@ ImageRecognitionRes Decode(uint8_t *str)
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
 
-    res.find_ball = copy[0];
+    res.find_ball = copy[0]-'0';
     char temp[6] = {""};
     strncpy(temp, copy+1, 4);
     res.distance = atoi(temp);

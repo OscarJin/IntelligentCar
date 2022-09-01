@@ -199,15 +199,30 @@ void SysTick_Handler(void)
   if(EncoderSysTickCnt == 20)
   {
 	  EncoderSysTickCnt = 0;
-	  if(Open_PID == 1)
+	  switch(Open_PID)
 	  {
-		  set_ccr(EncoderPID_R.result, EncoderPID_L.result);
+	  case 0:
+		  read_encoder();
+		  break;
+	  case 1:
 		  read_encoder();
 		  PID_Calc(&EncoderPID_L, EncoderDist_L);
 		  PID_Calc(&EncoderPID_R, EncoderDist_R);
-	  }
-	  else
+		  set_ccr(EncoderPID_R.result, EncoderPID_L.result);
+		  break;
+	  case 2:
 		  read_encoder();
+		  PID_Calc(&EncoderPID_L, EncoderDist_L);
+		  PID_Calc(&EncoderPID_R, EncoderDist_R);
+		  set_ccr(-EncoderPID_R.result, EncoderPID_L.result);
+		  break;
+	  case 3:
+		  read_encoder();
+		  PID_Calc(&EncoderPID_L, EncoderDist_L);
+		  PID_Calc(&EncoderPID_R, EncoderDist_R);
+		  set_ccr(EncoderPID_R.result, -EncoderPID_L.result);
+		  break;
+	  }
 
 //	  SendInt(EncoderDist_L);
   }
@@ -310,7 +325,7 @@ void TIM3_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);
+//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */

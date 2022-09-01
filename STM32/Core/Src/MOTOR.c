@@ -75,14 +75,20 @@ void set_ccr(int16_t MR, int16_t ML)
 
 void read_encoder()
 {
-	int Cnt_R = 65536-__HAL_TIM_GET_COUNTER(&htim2);
-	EncoderDist_R = EncoderCnt_to_Dist(Cnt_R);
+	int Cnt_R = __HAL_TIM_GET_COUNTER(&htim2);
 	EncoderDir_R = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim2);
+	if(EncoderDir_R == 1)
+		Cnt_R = 65536-Cnt_R;
+	EncoderDist_R = EncoderCnt_to_Dist(Cnt_R);
 
 
 	int Cnt_L = __HAL_TIM_GET_COUNTER(&htim4);
-	EncoderDist_L = EncoderCnt_to_Dist(Cnt_L);
 	EncoderDir_L = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4);
+	if(EncoderDir_L == 1)
+		Cnt_L = 65536-Cnt_L;
+	EncoderDist_L = EncoderCnt_to_Dist(Cnt_L);
+
+
 	__HAL_TIM_SET_COUNTER(&htim2, 0);
 	__HAL_TIM_SET_COUNTER(&htim4, 0);
 }

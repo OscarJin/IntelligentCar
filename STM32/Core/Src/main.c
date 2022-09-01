@@ -40,9 +40,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BOUNDARY_THRESHOLD 15
-#define BALL_ANGLE_THRESHOLD 60
-#define BALL_BLIND_DIST 10
-#define CRUISE_PWM 700
+#define BALL_ANGLE_THRESHOLD 10
+#define BALL_BLIND_DIST 25
+#define CRUISE_PWM 650
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,7 +61,7 @@ uint8_t EncoderDir_R;
 float EncoderDist_L;
 uint8_t EncoderDir_L;
 PID EncoderPID_L, EncoderPID_R;
-uint8_t Open_PID = 0;
+uint8_t Open_PID = 0;	//0-Close, 1-Straight, 2-TurnRight 3-TurnLeft
 
 /***超声***/
 float Distance_L;
@@ -74,13 +74,13 @@ ImageRecognitionRes ImgRes;
 /***Motion Control***/
 int State;
 /*
- * 1-非边界转弯找�????????
- * 2-转弯对准�????????
- * 3-直行接近�????????
+ * 1-非边界转弯找�????????
+ * 2-转弯对准�????????
+ * 3-直行接近�????????
  * 4-抓球
- * 5-�????????
+ * 5-�????????
 */
-int CatchBallSubState;
+int CatchBallSubState = 1;
 struct {
 	float x;
 	float y;
@@ -138,8 +138,8 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 //  Init_IMU();
-  Encoder_PID_init(&EncoderPID_L, 1.5);
-  Encoder_PID_init(&EncoderPID_R, 1.5);
+  Encoder_PID_init(&EncoderPID_L, 1);
+  Encoder_PID_init(&EncoderPID_R, 1);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -194,7 +194,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  motorC();
+	  motorC();
 	  if(StateCnt != 0)
 	  {
 		  //赋�??
@@ -203,35 +203,43 @@ int main(void)
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
 
+		  set_ccr(0, 0);
+
 		  if(CurrentInfo.img.find_ball == 0 && TurnTimes < 7/* && CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD*/)
 			  State = 1;
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD)
 			  State = 2;
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST)
 			  State = 3;
-		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST)
+		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+3)
 		  {
 			  State = 4;
-			  CatchBallSubState = 1;
+//			  CatchBallSubState = 1;
 		  }
 
 		  switch(State)
 		  {
 		  case 1:
-			  Open_PID = 0;
 			  TurnTimes++;
 			  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+			  Open_PID = 2;
 			  StateCnt = 0;
 			  break;
 		  case 2:
-			  Open_PID = 0;
 			  if(CurrentInfo.img.dir == 0)	//ball on the left
+			  {
 				  set_ccr(CRUISE_PWM, -CRUISE_PWM);
+				  Open_PID = 3;
+			  }
 			  else
+			  {
 				  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+				  Open_PID = 2;
+			  }
 			  StateCnt = 0;
 			  break;
 		  case 3:
+			  set_ccr(CRUISE_PWM, CRUISE_PWM);
 			  Open_PID = 1;
 			  StateCnt = 0;
 			  break;
@@ -241,7 +249,7 @@ int main(void)
 			  {
 			  case 1:
 				  set_ccr(0, 0);
-				  if(CatchCnt < 6)
+				  if(CatchCnt < 10)
 					  Servo_Control_DOWN(1);
 				  else
 				  {
@@ -251,7 +259,7 @@ int main(void)
 				  }
 				  break;
 			  case 2:
-				  if(CatchCnt < 6)
+				  if(CatchCnt < 10)
 					  Servo_Cam(1);
 				  else
 				  {
@@ -261,8 +269,11 @@ int main(void)
 				  }
 				  break;
 			  case 3:
-				  if(CatchCnt < 6)
+				  if(CatchCnt < 15)
+				  {
+					  set_ccr(CRUISE_PWM, CRUISE_PWM);
 					  Open_PID = 1;
+				  }
 				  else
 				  {
 					  CatchBallSubState = 4;

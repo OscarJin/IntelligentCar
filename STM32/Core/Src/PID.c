@@ -13,9 +13,9 @@ extern int PWM_L, PWM_R;
 
 void Encoder_PID_init(PID* pid, int res, float target)
 {
-	pid->Kp = 30;
+	pid->Kp = 25;
 	pid->Ki = 0;
-	pid->Kd = 5;
+	pid->Kd = 10;
 	pid->target = target;
 	pid->result = res;
 	pid->LastError = pid->PrevError = 0;

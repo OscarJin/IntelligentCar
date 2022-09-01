@@ -21,7 +21,8 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "MOTOR.h"
+extern int State;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -273,7 +274,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 	if(UartHandle->Instance == USART1)
 	{
 		ImgRes = Decode(OpenMV_Rxbuf);
-		SendInt(ImgRes.find_ball);
+//		SendInt(ImgRes.find_ball);
+		if(ImgRes.find_ball == 1 && State == 1)
+			set_ccr(0, 0);
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);
 	}
 }

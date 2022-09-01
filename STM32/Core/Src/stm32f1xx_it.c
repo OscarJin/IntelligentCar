@@ -196,7 +196,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 
-  if(EncoderSysTickCnt == 20)
+  if(EncoderSysTickCnt == 10)
   {
 	  EncoderSysTickCnt = 0;
 	  switch(Open_PID)
@@ -223,7 +223,6 @@ void SysTick_Handler(void)
 		  set_ccr(EncoderPID_R.result, -EncoderPID_L.result);
 		  break;
 	  }
-
 //	  SendInt(EncoderDist_L);
   }
   else

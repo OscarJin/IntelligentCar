@@ -106,4 +106,4 @@ while(True):
 
     uart.write(output_str)
     print(output_str)
-    time.sleep_ms(50)
+    #time.sleep_ms(50)

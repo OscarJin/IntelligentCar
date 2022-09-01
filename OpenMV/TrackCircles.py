@@ -26,11 +26,12 @@ def AngleMeasurement(obj):
 
 
 def BallinGreen(obj):
-    green_roi = (obj.x(), 0, obj.w(), obj.h())
-    if img.find_blobs([green_threshold], roi=green_roi, x_stride=2, pixels_threshold=20, merge=True):
-        return True
-    else:
-        return False
+    #green_roi = (obj.x(), 0, obj.w(), obj.h())
+    #if img.find_blobs([green_threshold], roi=green_roi, x_stride=2, pixels_threshold=20, merge=True):
+        #return True
+    #else:
+        #return False
+    return False
 
 
 ######  摄像头设置  ######
@@ -105,4 +106,4 @@ while(True):
 
     uart.write(output_str)
     print(output_str)
-    time.sleep_ms(250)
+    time.sleep_ms(50)

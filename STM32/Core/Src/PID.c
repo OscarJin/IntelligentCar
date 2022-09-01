@@ -11,13 +11,13 @@
 
 extern int PWM_L, PWM_R;
 
-void Encoder_PID_init(PID* pid, float target)
+void Encoder_PID_init(PID* pid, int res, float target)
 {
-	pid->Kp = 5;
+	pid->Kp = 30;
 	pid->Ki = 0;
-	pid->Kd = 0;
+	pid->Kd = 5;
 	pid->target = target;
-	pid->result = 600;
+	pid->result = res;
 	pid->LastError = pid->PrevError = 0;
 }
 

@@ -39,10 +39,14 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOUNDARY_THRESHOLD 15
-#define BALL_ANGLE_THRESHOLD 10
-#define BALL_BLIND_DIST 25
-#define CRUISE_PWM 650
+#define BOUNDARY_THRESHOLD 20
+#define BALL_ANGLE_THRESHOLD 15
+#define BALL_BLIND_DIST 15
+#define CRUISE_PWM 700
+#define TURN_PWM 750
+#define DUMP_THRESHOLD 20
+#define CRUISE_VELOCITY 1
+#define TURN_VELOCITY 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,13 +78,16 @@ ImageRecognitionRes ImgRes;
 /***Motion Control***/
 int State;
 /*
- * 1-非边界转弯找�????????
- * 2-转弯对准�????????
- * 3-直行接近�????????
- * 4-抓球
- * 5-�????????
+ * 1-Find ball no boundary
+ * 2-turn and target
+ * 3-approach
+ * 4-catch
+ * 5-?
+ * 6-Return
+ * 7-Obstacle, back
 */
 int CatchBallSubState = 1;
+int ReturnSubState = 1;
 struct {
 	float x;
 	float y;
@@ -88,6 +95,8 @@ struct {
 
 int StateCnt = 0;
 int CatchCnt = 0;	//State4 Counter
+int ReturnCnt = 0;	//State6 Counter
+int ObstacleCnt = 0;	//State7 Counter
 
 struct {
 	ImageRecognitionRes img;
@@ -138,8 +147,6 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 //  Init_IMU();
-  Encoder_PID_init(&EncoderPID_L, 1);
-  Encoder_PID_init(&EncoderPID_R, 1);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -195,55 +202,90 @@ int main(void)
   while (1)
   {
 	  motorC();
-	  if(StateCnt != 0)
+	  if(StateCnt == 5)
 	  {
-		  //赋�??
+		  //car state
 		  CurrentInfo.img = ImgRes;
 		  CurrentInfo.dist_L = Distance_L;
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
+		  if(CurrentInfo.angle >= -21 && CurrentInfo.angle <= 159)
+			  CurrentInfo.angle += 21;
+		  else
+			  CurrentInfo.angle -= 339;
 
 		  set_ccr(0, 0);
+		  Open_PID = 0;
 
-		  if(CurrentInfo.img.find_ball == 0 && TurnTimes < 7/* && CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD*/)
+		  if(CurrentInfo.img.find_ball == 0 && TurnTimes < 70/* && CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD*/)
+		  {
 			  State = 1;
+			  CatchBallSubState = 1;
+		  }
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD)
+		  {
 			  State = 2;
+			  CatchBallSubState = 1;
+		  }
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST)
+		  {
 			  State = 3;
+			  CatchBallSubState = 1;
+		  }
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+3)
 		  {
 			  State = 4;
 //			  CatchBallSubState = 1;
 		  }
+		  else if(BallCatch >= 9)
+		  {
+			  State = 6;
+			  CatchBallSubState = 1;
+		  }
+		  else if(CurrentInfo.img.find_ball == 0 && (CurrentInfo.dist_L <= BOUNDARY_THRESHOLD || CurrentInfo.dist_R <= BOUNDARY_THRESHOLD) && BallCatch < 9)
+		  {
+			  State = 7;
+			  CatchBallSubState = 1;
+		  }
 
 		  switch(State)
 		  {
-		  case 1:
+		  case 1:	//State 1
+			  Servo_Cam(0);
 			  TurnTimes++;
-			  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+			  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+			  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+			  set_ccr(-TURN_PWM, TURN_PWM);
 			  Open_PID = 2;
 			  StateCnt = 0;
 			  break;
-		  case 2:
+		  case 2:	//State 2
+			  Servo_Cam(0);
 			  if(CurrentInfo.img.dir == 0)	//ball on the left
 			  {
-				  set_ccr(CRUISE_PWM, -CRUISE_PWM);
+				  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+				  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+				  set_ccr(TURN_PWM, -TURN_PWM);
 				  Open_PID = 3;
 			  }
 			  else
 			  {
-				  set_ccr(-CRUISE_PWM, CRUISE_PWM);
+				  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+				  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+				  set_ccr(-TURN_PWM, TURN_PWM);
 				  Open_PID = 2;
 			  }
 			  StateCnt = 0;
 			  break;
-		  case 3:
+		  case 3:	//State 3
+			  Servo_Cam(0);
+			  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
+			  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
 			  set_ccr(CRUISE_PWM, CRUISE_PWM);
 			  Open_PID = 1;
 			  StateCnt = 0;
 			  break;
-		  case 4:
+		  case 4:	//State 4
 			  Open_PID = 0;
 			  switch(CatchBallSubState)
 			  {
@@ -259,7 +301,8 @@ int main(void)
 				  }
 				  break;
 			  case 2:
-				  if(CatchCnt < 10)
+				  set_ccr(0, 0);
+				  if(CatchCnt < 5)
 					  Servo_Cam(1);
 				  else
 				  {
@@ -271,17 +314,23 @@ int main(void)
 			  case 3:
 				  if(CatchCnt < 15)
 				  {
+					  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
 					  set_ccr(CRUISE_PWM, CRUISE_PWM);
 					  Open_PID = 1;
 				  }
 				  else
 				  {
+					  set_ccr(0, 0);
+					  Open_PID = 0;
 					  CatchBallSubState = 4;
 					  CatchCnt = 0;
 					  StateCnt = 0;
 				  }
 				  break;
 			  case 4:
+				  set_ccr(0, 0);
+				  Open_PID = 0;
 				  if(CatchCnt < 5)
 					  Servo_Control_DOWN(2);
 				  else
@@ -295,6 +344,156 @@ int main(void)
 				  break;
 			  }
 			  break;
+		  case 6:	//State 6
+			  Servo_Cam(0);
+			  switch(ReturnSubState)
+			  {
+			  case 1:	//turn to x axis
+				  if(CurrentInfo.angle >= 0)	//turn left
+				  {
+					  if(CurrentInfo.angle <= 170)
+					  {
+						  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+						  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+						  set_ccr(TURN_PWM, -TURN_PWM);
+						  Open_PID = 3;
+					  }
+					  else
+					  {
+						  set_ccr(0, 0);
+						  Open_PID = 0;
+						  StateCnt = 0;
+						  ReturnCnt = 0;
+						  ReturnSubState = 2;
+					  }
+				  }
+				  else
+				  {
+					  if(CurrentInfo.angle >= -170)
+					  {
+						  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+						  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+						  set_ccr(-TURN_PWM, TURN_PWM);
+						  Open_PID = 2;
+					  }
+					  else
+					  {
+						  set_ccr(0, 0);
+						  Open_PID = 0;
+						  StateCnt = 0;
+						  ReturnCnt = 0;
+						  ReturnSubState = 2;
+					  }
+				  }
+				  break;
+			  case 2:
+				  if(CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD)
+				  {
+					  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
+					  set_ccr(CRUISE_PWM, CRUISE_PWM);
+					  Open_PID = 1;
+				  }
+				  else
+				  {
+					  set_ccr(0, 0);
+					  Open_PID = 0;
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 3;
+				  }
+				  break;
+			  case 3:
+				  if(CurrentInfo.angle <= -90 || CurrentInfo.angle >= 0)
+				  {
+					  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+					  set_ccr(TURN_PWM, -TURN_PWM);
+					  Open_PID = 3;
+				  }
+				  else
+				  {
+					  set_ccr(0, 0);
+					  Open_PID = 0;
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 4;
+				  }
+				  break;
+			  case 4:
+				  if(CurrentInfo.dist_L >= DUMP_THRESHOLD && CurrentInfo.dist_R >= DUMP_THRESHOLD)
+				  {
+					  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
+					  set_ccr(CRUISE_PWM, CRUISE_PWM);
+					  Open_PID = 1;
+				  }
+				  else
+				  {
+					  set_ccr(0, 0);
+					  Open_PID = 0;
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 5;
+				  }
+				  break;
+			  case 5:
+				  set_ccr(0, 0);
+				  Open_PID = 0;
+				  if(ReturnCnt < 10)
+				  {
+					  Dump();
+				  }
+				  else
+				  {
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 6;
+				  }
+				  break;
+			  case 6:
+				  if(ReturnCnt < 10)
+				  {
+					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+					  Open_PID = 0;
+				  }
+				  else
+				  {
+					  set_ccr(0, 0);
+					  Open_PID = 0;
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 7;
+				  }
+				  break;
+			  case 7:
+				  if(CurrentInfo.angle <= -10)
+				  {
+					  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+					  set_ccr(TURN_PWM, -TURN_PWM);
+					  Open_PID = 3;
+					  StateCnt = 0;
+					  ReturnCnt = 0;
+					  ReturnSubState = 1;
+					  BallCatch = 0;
+				  }
+				  break;
+			  }
+		  case 7:	//State 7
+			  Servo_Cam(0);
+			  if(ObstacleCnt < 10)
+			  {
+				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+				  Open_PID = 0;
+			  }
+			  else
+			  {
+				  set_ccr(0, 0);
+				  Open_PID = 0;
+				  StateCnt = 0;
+				  ObstacleCnt = 0;
+			  }
 		  }
 	  }
     /* USER CODE END WHILE */

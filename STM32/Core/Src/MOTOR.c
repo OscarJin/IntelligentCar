@@ -18,9 +18,9 @@ extern TIM_HandleTypeDef htim4;
 
 void motorC()
 {
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_RESET);
-	HAL_Delay(100);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_12, GPIO_PIN_SET);
+//	HAL_Delay(100);
 }
 
 int16_t *amp_confine(int16_t MA, int16_t MB)

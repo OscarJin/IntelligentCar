@@ -16,7 +16,7 @@ typedef struct{
 	float PrevError;
 } PID;
 
-void Encoder_PID_init(PID* pid, float target);
+void Encoder_PID_init(PID* pid, int res, float target);
 
 void PID_Calc(PID* pid, float encoder);
 //void PID_Dist(float dist, float Kp);

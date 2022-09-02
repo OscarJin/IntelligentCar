@@ -6,14 +6,14 @@ from pyb import UART
 
 ######  设置一些常数  ########
 orange_threshold = (20, 90, 15, 60, 20, 100)
-green_threshold = (10, 50, -30, -5, 10, 65)
-measurement_const = 1450
+green_threshold = (0, 100, -60, -20, 13, 68)
+measurement_const = 1600
 uart = UART(3, 115200)
 
 
 ######  函数定义  ######
 def DistanceMeasurement(r):
-    dist2 = (measurement_const/r)*(measurement_const/r) - 400.0
+    dist2 = (measurement_const/r)*(measurement_const/r)-17.*17.
     if dist2 < 0:
         dist2 = 0
     dist = math.sqrt(dist2)
@@ -26,12 +26,16 @@ def AngleMeasurement(obj):
 
 
 def BallinGreen(obj):
-    #green_roi = (obj.x(), 0, obj.w(), obj.h())
-    #if img.find_blobs([green_threshold], roi=green_roi, x_stride=2, pixels_threshold=20, merge=True):
-        #return True
-    #else:
-        #return False
-    return False
+    if obj.y() > obj.h():
+        y = obj.y() - obj.h()
+    else:
+        y = 0
+    green_roi = (obj.x(), y, obj.w(), obj.h())
+    if img.find_blobs([green_threshold], roi=green_roi, x_stride=2, pixels_threshold=20, merge=True):
+        return True
+    else:
+        return False
+    #return False
 
 
 ######  摄像头设置  ######

@@ -223,7 +223,6 @@ void SysTick_Handler(void)
 		  set_ccr(EncoderPID_R.result, -EncoderPID_L.result);
 		  break;
 	  }
-//	  SendInt(EncoderDist_L);
   }
   else
   {

@@ -23,6 +23,7 @@
 /* USER CODE BEGIN 0 */
 #include "MOTOR.h"
 extern int State;
+extern int Open_PID;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -276,7 +277,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 		ImgRes = Decode(OpenMV_Rxbuf);
 //		SendInt(ImgRes.find_ball);
 		if(ImgRes.find_ball == 1 && State == 1)
+		{
 			set_ccr(0, 0);
+			Open_PID = 0;
+		}
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);
 	}
 }

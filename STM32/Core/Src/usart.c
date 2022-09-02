@@ -278,7 +278,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 //		SendInt(ImgRes.find_ball);
 		if(ImgRes.find_ball == 1 && State == 1)
 		{
-			set_ccr(0, 0);
+			Brake();
 			Open_PID = 0;
 		}
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);

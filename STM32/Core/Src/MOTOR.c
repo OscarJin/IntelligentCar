@@ -42,6 +42,7 @@ int16_t *amp_confine(int16_t MA, int16_t MB)
 void set_ccr(int16_t MR, int16_t ML)
 {
 	//MA-R MB-L
+
 	int16_t *Confine_Motor;
 	Confine_Motor=amp_confine(MR, ML);
 
@@ -96,4 +97,13 @@ void read_encoder()
 float EncoderCnt_to_Dist(int cnt)
 {
 	return ((float)cnt) * PI * 6.5 / 224.5;
+}
+
+void Brake()
+{
+	HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2,GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD,GPIO_PIN_3,GPIO_PIN_RESET);
+
+	HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4,GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOE,GPIO_PIN_5,GPIO_PIN_RESET);
 }

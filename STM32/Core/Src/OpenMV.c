@@ -6,6 +6,8 @@
  */
 
 #include <OpenMV.h>
+#include "math.h"
+#define PI 3.1416
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
@@ -19,9 +21,10 @@ ImageRecognitionRes Decode(uint8_t *str)
     res.distance = atoi(temp);
 
     strncpy(temp, copy+5, 5);
-    res.angle = (float)atoi(temp) / 100;
+    res.angle = sin((float)atoi(temp) * PI / (100*180)) * res.distance;
 
-    res.dir = atoi(copy+10);
+//    res.dir = atoi(copy+10);
+    res.dir = copy[10] - '0';
 
 	return res;
 }

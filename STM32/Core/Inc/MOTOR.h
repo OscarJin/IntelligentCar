@@ -13,6 +13,7 @@
 void motorC(void);
 int16_t *amp_confine(int16_t MR, int16_t ML);
 void set_ccr(int16_t MA, int16_t MB);
+void Brake();
 void read_encoder();
 float EncoderCnt_to_Dist(int cnt);
 

@@ -39,13 +39,14 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOUNDARY_THRESHOLD 18
-#define BALL_ANGLE_THRESHOLD 20
-#define BALL_BLIND_DIST 15
-#define CRUISE_PWM 650
+#define BOUNDARY_THRESHOLD 15
+#define BALL_ANGLE_THRESHOLD 6
+#define BALL_BLIND_DIST 18
+#define BALL_FAR_DIST 60
+#define CRUISE_PWM 550
 #define TURN_PWM 720
 #define DUMP_THRESHOLD 20
-#define CRUISE_VELOCITY 0.3
+#define CRUISE_VELOCITY 0.2
 #define TURN_VELOCITY 0.25
 /* USER CODE END PD */
 
@@ -90,6 +91,7 @@ int FindBallSubState = 0;	//State1 Sub
 int TargetSubState = 0;	//State2 Sub
 int CatchBallSubState = 1;	//State4 Sub
 int ReturnSubState = 1;	//State6 Sub
+
 
 //struct {
 //	float x;
@@ -214,7 +216,6 @@ int main(void)
 		  CurrentInfo.dist_L = Distance_L;
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
-		  SendInt((int)CurrentInfo.angle);
 		  if(CurrentInfo.angle >= -33 && CurrentInfo.angle <= 147)
 			  CurrentInfo.angle += 33;
 		  else
@@ -223,7 +224,7 @@ int main(void)
 		  set_ccr(0, 0);
 		  Open_PID = 0;
 
-//		  State = 1;
+//		  State = 2;
 #if 1
 		  if(CatchBallSubState != 1)
 			  State = 4;
@@ -232,17 +233,17 @@ int main(void)
 			  State = 1;
 			  CatchBallSubState = 1;
 		  }
-		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD)
+		  else if(CurrentInfo.img.find_ball == 1 && (CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance < BALL_FAR_DIST) )
 		  {
 			  State = 2;
 			  CatchBallSubState = 1;
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+5)
 		  {
-		  			  State = 4;
+			  State = 4;
 		  //			  CatchBallSubState = 1;
 		  }
-		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST)
+		  else if(CurrentInfo.img.find_ball == 1 && ((CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST) || CurrentInfo.img.distance >= BALL_FAR_DIST))
 		  {
 			  State = 3;
 			  CatchBallSubState = 1;
@@ -260,6 +261,7 @@ int main(void)
 
 		  SendInt(State);
 #endif
+
 		  switch(State)
 		  {
 		  case 1:	//State 1
@@ -271,11 +273,10 @@ int main(void)
 				  {
 					  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
 					  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
-					  set_ccr(-TURN_PWM, TURN_PWM);
-					  Open_PID = 2;
 				  }
-				  SendInt((int)(EncoderDist_L*100));
-				  if(FindCnt++ == 10)
+				  set_ccr(-TURN_PWM, TURN_PWM);
+				  Open_PID = 2;
+				  if(FindCnt++ == 3)
 				  {
 					  FindCnt = 0;
 					  FindBallSubState = 1;
@@ -285,7 +286,7 @@ int main(void)
 			  {
 				  set_ccr(0, 0);
 				  Open_PID = 0;
-				  if(FindCnt++ == 10)
+				  if(FindCnt++ == 3)
 				  {
 				  	  FindCnt = 0;
 				  	  FindBallSubState = 0;
@@ -301,19 +302,20 @@ int main(void)
 				  {
 					  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
 					  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
-					  if(CurrentInfo.img.dir == 1)	//ball on the left
-					  {
-					  		set_ccr(TURN_PWM, -TURN_PWM);
-					  		Open_PID = 3;
-					  }
-					  else
-					  {
-					  		set_ccr(-TURN_PWM, TURN_PWM);
-					  		Open_PID = 2;
-					  }
 				  }
 
-				  if(TargetCnt++ == 5)
+				  if(CurrentInfo.img.dir == 0)	//ball on the left
+				  {
+				  		set_ccr(TURN_PWM, -TURN_PWM);
+				  		Open_PID = 3;
+				  }
+				  else
+				  {
+				  		set_ccr(-TURN_PWM, TURN_PWM);
+				  		Open_PID = 2;
+				  }
+
+				  if(TargetCnt++ == 2)
 				  {
 					  TargetCnt = 0;
 					  TargetSubState = 1;
@@ -323,7 +325,7 @@ int main(void)
 			  {
 				  set_ccr(0, 0);
 				  Open_PID = 0;
-				  if(TargetCnt++ == 5)
+				  if(TargetCnt++ == 3)
 				  {
 					  TargetCnt = 0;
 					  TargetSubState = 0;
@@ -332,6 +334,7 @@ int main(void)
 
 			  StateCnt = 0;
 			  break;
+
 		  case 3:	//State 3
 			  Servo_Cam(0);
 			  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);

@@ -45,11 +45,11 @@ void Servo_Control_DOWN(uint8_t mode)
 void Dump()
 {
 	Servo_Control_DOWN(0);
-	HAL_Delay(500);
+//	HAL_Delay(500);
 	Servo_Control_UP(1);
-	HAL_Delay(3000);
-	Servo_Control_UP(0);
-	Servo_Control_DOWN(2);
+//	HAL_Delay(3000);
+//	Servo_Control_UP(0);
+//	Servo_Control_DOWN(2);
 }
 
 void Servo_Cam(uint8_t mode)

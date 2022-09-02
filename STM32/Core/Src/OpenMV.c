@@ -11,7 +11,7 @@
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
-    char* copy = malloc(12);
+    char* copy = malloc(13);
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
 
@@ -21,10 +21,12 @@ ImageRecognitionRes Decode(uint8_t *str)
     res.distance = atoi(temp);
 
     strncpy(temp, copy+5, 5);
-    res.angle = sin((float)atoi(temp) * PI / (100*180)) * res.distance;
+    res.angle = tan((float)atoi(temp) * PI / (100*180)) * res.distance;
 
 //    res.dir = atoi(copy+10);
     res.dir = copy[10] - '0';
+
+    res.find_green = copy[11] - '0';
 
 	return res;
 }

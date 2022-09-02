@@ -759,8 +759,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			StateCnt++;
 			if(State == 4)
 				CatchCnt++;
-			if(State == 6)
-				ReturnCnt++;
 			if(State == 7)
 				ObstacleCnt++;
 	}

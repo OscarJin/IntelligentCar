@@ -7,7 +7,7 @@ from pyb import UART
 ######  设置一些常数  ########
 orange_threshold = (20, 90, 15, 60, 20, 100)
 green_threshold = (0, 100, -60, -20, 13, 68)
-measurement_const = 1600
+measurement_const = 1200
 uart = UART(3, 115200)
 
 
@@ -41,10 +41,10 @@ def BallinGreen(obj):
 ######  摄像头设置  ######
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
-sensor.set_framesize(sensor.SVGA)
+sensor.set_framesize(sensor.VGA)
 sensor.set_auto_whitebal(True)
-w = 800
-h = 600   #w,h of HD
+w = 640
+h = 480   #w,h of HD
 #sensor.skip_frames(time = 2000)
 sensor.set_auto_gain(False) # must be turned off for color tracking
 sensor.set_auto_whitebal(False) # must be turned off for color tracking
@@ -100,7 +100,7 @@ while(True):
         #print("Not Found!")
 
     ###### 寻找终点 ######
-    green_blobs = img.find_blobs([green_threshold], x_stride=4, pixels_threshold=40, merge=True)
+    green_blobs = img.find_blobs([green_threshold],roi=(0, 0, 200, h), x_stride=4, pixels_threshold=40, merge=True)
     if green_blobs:
         output_str += '1'
         for g in green_blobs:
@@ -110,4 +110,4 @@ while(True):
 
     uart.write(output_str)
     print(output_str)
-    #time.sleep_ms(50)
+    time.sleep_ms(80)

@@ -22,7 +22,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "MOTOR.h"
-extern int State;
+extern int State, ReturnSubState;
 extern int Open_PID;
 /* USER CODE END 0 */
 
@@ -276,7 +276,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 	{
 		ImgRes = Decode(OpenMV_Rxbuf);
 //		SendInt(ImgRes.find_ball);
-		if(ImgRes.find_ball == 1 && State == 1)
+		if((ImgRes.find_ball == 1 && State == 1) || (ImgRes.find_green == 1 && ReturnSubState == 1))
 		{
 			Brake();
 			Open_PID = 0;

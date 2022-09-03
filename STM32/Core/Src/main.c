@@ -48,7 +48,7 @@
 #define DUMP_THRESHOLD 20
 #define CRUISE_VELOCITY 0.2
 #define TURN_VELOCITY 0.25
-#define DESTINATION_DIST 20
+#define DESTINATION_DIST 25
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -228,7 +228,7 @@ int main(void)
 		  Open_PID = 0;
 
 //		  State = 6;
-//		  BallCatch = 10;
+		  BallCatch = 10;
 #if 1
 		  if(CatchBallSubState != 1)
 			  State = 4;
@@ -261,7 +261,7 @@ int main(void)
 			  {
 				  ReturnSubState = 1;
 			  }
-			  else if(CurrentInfo.img.find_green == 1 && (CurrentInfo.dist_L <= DESTINATION_DIST || CurrentInfo.dist_R <= DESTINATION_DIST))
+			  else if(CurrentInfo.img.find_green == 1 && ((CurrentInfo.dist_R <= 20 && CurrentInfo.dist_L <= 40) || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
 			  {
 				  ReturnSubState = 3;
 			  }
@@ -437,8 +437,8 @@ int main(void)
 						  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
 						  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
 					  }
-					  set_ccr(-TURN_PWM, TURN_PWM);
-					  Open_PID = 2;
+					  set_ccr(TURN_PWM, -TURN_PWM);
+					  Open_PID = 3;
 					  if(ReturnCnt++ == 3)
 					  {
 						  ReturnCnt = 0;
@@ -467,6 +467,7 @@ int main(void)
 				  break;
 			  case 3:
 				  Brake();
+				  Dump();
 				  Dump();
 				  BallCatch = 0;
 				  StateCnt = 0;

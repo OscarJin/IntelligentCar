@@ -101,7 +101,7 @@ while(True):
         #print("Not Found!")
 
     ###### 寻找终点 ######
-    green_blobs = img.find_blobs([green_threshold],roi=(350, 0, 200, h), x_stride=4, pixels_threshold=40, merge=True)
+    green_blobs = img.find_blobs([green_threshold],roi=(260, 0, 120, h), x_stride=4, pixels_threshold=40, merge=True)
     if green_blobs:
         output_str += '1'
         for g in green_blobs:

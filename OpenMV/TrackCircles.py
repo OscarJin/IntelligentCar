@@ -9,6 +9,7 @@ orange_threshold = (20, 90, 15, 60, 20, 100)
 green_threshold = (0, 100, -60, -20, 13, 68)
 measurement_const = 1200
 uart = UART(3, 115200)
+blind_w = 120   #屏蔽宽度
 
 
 ######  函数定义  ######
@@ -71,7 +72,7 @@ while(True):
 
     ###### 寻找小球 ######
     OrangeCircles = []
-    ball_blobs = img.find_blobs([orange_threshold], x_stride=4, pixels_threshold=40, merge=True)
+    ball_blobs = img.find_blobs([orange_threshold], roi=(blind_w,0,w-blind_w,480), x_stride=4, pixels_threshold=40, merge=True)
 
     if ball_blobs:
         for b in ball_blobs:
@@ -100,7 +101,7 @@ while(True):
         #print("Not Found!")
 
     ###### 寻找终点 ######
-    green_blobs = img.find_blobs([green_threshold],roi=(0, 0, 200, h), x_stride=4, pixels_threshold=40, merge=True)
+    green_blobs = img.find_blobs([green_threshold],roi=(350, 0, 200, h), x_stride=4, pixels_threshold=40, merge=True)
     if green_blobs:
         output_str += '1'
         for g in green_blobs:
@@ -110,4 +111,4 @@ while(True):
 
     uart.write(output_str)
     print(output_str)
-    time.sleep_ms(80)
+    time.sleep_ms(50)

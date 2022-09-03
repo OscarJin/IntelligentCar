@@ -11,7 +11,7 @@
 
 ImageRecognitionRes Decode(uint8_t *str)
 {
-    char* copy = malloc(13);
+    char* copy = malloc(12);
     strcpy(copy, (char*)str);
     ImageRecognitionRes res;
 

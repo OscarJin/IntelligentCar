@@ -39,15 +39,16 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BOUNDARY_THRESHOLD 25
+#define BOUNDARY_THRESHOLD 5
 #define BALL_ANGLE_THRESHOLD 7.5
 #define BALL_BLIND_DIST 18
 #define BALL_FAR_DIST 60
 #define CRUISE_PWM 550
-#define TURN_PWM 720
+#define TURN_PWM 700
 #define DUMP_THRESHOLD 20
 #define CRUISE_VELOCITY 0.2
 #define TURN_VELOCITY 0.25
+#define DESTINATION_DIST 20
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,7 +74,7 @@ float Distance_L;
 float Distance_R;
 
 /***OpenMV***/
-uint8_t OpenMV_Rxbuf[13];
+uint8_t OpenMV_Rxbuf[12];
 ImageRecognitionRes ImgRes;
 
 /***Motion Control***/
@@ -92,6 +93,7 @@ int TargetSubState = 0;	//State2 Sub
 int CatchBallSubState = 1;	//State4 Sub
 int ReturnSubState = 1;	//State6 Sub
 int FindGreenSubState = 0;	//State 6 Find Sub
+int ObstacleSubState = 1;	//State 7 Sub
 
 
 //struct {
@@ -226,11 +228,11 @@ int main(void)
 		  Open_PID = 0;
 
 //		  State = 6;
-		  BallCatch = 10;
+//		  BallCatch = 10;
 #if 1
 		  if(CatchBallSubState != 1)
 			  State = 4;
-		  else if(CurrentInfo.img.find_ball == 0  /*&& CurrentInfo.dist_L > BOUNDARY_THRESHOLD && CurrentInfo.dist_R > BOUNDARY_THRESHOLD*/)
+		  else if(CurrentInfo.img.find_ball == 0)
 		  {
 			  State = 1;
 			  CatchBallSubState = 1;
@@ -259,7 +261,7 @@ int main(void)
 			  {
 				  ReturnSubState = 1;
 			  }
-			  else if(CurrentInfo.img.find_green == 1 /*&& (CurrentInfo.dist_L <= BOUNDARY_THRESHOLD || CurrentInfo.dist_R <= BOUNDARY_THRESHOLD)*/)
+			  else if(CurrentInfo.img.find_green == 1 && (CurrentInfo.dist_L <= DESTINATION_DIST || CurrentInfo.dist_R <= DESTINATION_DIST))
 			  {
 				  ReturnSubState = 3;
 			  }
@@ -268,10 +270,15 @@ int main(void)
 				  ReturnSubState = 2;
 			  }
 		  }
-		  else if(CurrentInfo.img.find_ball == 0 && (CurrentInfo.dist_L <= BOUNDARY_THRESHOLD || CurrentInfo.dist_R <= BOUNDARY_THRESHOLD) && BallCatch < 9)
+
+		  if(State != 4 && CurrentInfo.img.find_ball == 0 && (CurrentInfo.dist_L <= BOUNDARY_THRESHOLD || CurrentInfo.dist_R <= BOUNDARY_THRESHOLD) && BallCatch < 9)
 		  {
 			  State = 7;
 			  CatchBallSubState = 1;
+			  if(CurrentInfo.dist_L <= BOUNDARY_THRESHOLD)
+				  ObstacleSubState = 1;
+			  else if(CurrentInfo.dist_R <= BOUNDARY_THRESHOLD)
+				  ObstacleSubState = 2;
 		  }
 
 		  SendInt(CurrentInfo.img.find_green);
@@ -468,10 +475,20 @@ int main(void)
 			  break;
 		  case 7:	//State 7
 			  Servo_Cam(0);
-			  if(ObstacleCnt < 10)
+			  if(ObstacleCnt < 25)
 			  {
-				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
-				  Open_PID = 0;
+				  switch(ObstacleSubState)
+				  {
+				  case 1:
+					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+					  Open_PID = 0;
+					  break;
+				  case 2:
+					  set_ccr(TURN_PWM, -TURN_PWM);
+					  Open_PID = 3;
+					  break;
+				  }
+
 			  }
 			  else
 			  {

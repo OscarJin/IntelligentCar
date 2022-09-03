@@ -24,6 +24,9 @@
 #include "MOTOR.h"
 extern int State, ReturnSubState;
 extern int Open_PID;
+
+extern uint8_t OpenMV_Rxbuf[12];
+extern ImageRecognitionRes ImgRes;
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart4;
@@ -281,6 +284,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 			Brake();
 			Open_PID = 0;
 		}
+
+
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, RESET);
 	}
 }

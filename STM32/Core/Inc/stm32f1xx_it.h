@@ -43,7 +43,7 @@ extern TIM_HandleTypeDef htim2;
 extern float EncoderDist_L, EncoderDist_R;
 extern uint8_t EncoderDir_L, EncoderDir_R;
 char str_buff[64];
-extern uint8_t OpenMV_Rxbuf[10];
+extern uint8_t OpenMV_Rxbuf[12];
 extern PID EncoderPID_L, EncoderPID_R;
 extern uint8_t Open_PID;
 /* USER CODE END EC */

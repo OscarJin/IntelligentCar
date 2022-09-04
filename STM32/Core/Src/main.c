@@ -49,6 +49,7 @@
 #define CRUISE_VELOCITY 0.2
 #define TURN_VELOCITY 0.25
 #define DESTINATION_DIST 25
+#define NO_BALL 300
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -86,14 +87,15 @@ int State;
  * 4-catch
  * 5-?
  * 6-Return
- * 7-Obstacle, back
+ * 7-Front Obstacle, back
+ * 8-Right Obstacle, left
 */
 int FindBallSubState = 0;	//State1 Sub
 int TargetSubState = 0;	//State2 Sub
 int CatchBallSubState = 1;	//State4 Sub
 int ReturnSubState = 1;	//State6 Sub
 int FindGreenSubState = 0;	//State 6 Find Sub
-int ObstacleSubState = 1;	//State 7 Sub
+//int ObstacleSubState = 1;	//State 7 Sub
 
 
 //struct {
@@ -106,7 +108,8 @@ int FindCnt = 0;	//State1 Counter
 int TargetCnt = 0;	//State 2 Counter
 int CatchCnt = 0;	//State4 Counter
 int ReturnCnt = 0;	//State6 Counter
-int ObstacleCnt = 0;	//State7 Counter
+int FrontObstacleCnt = 0;	//State7 Counter
+int RightObstacleCnt = 0;	//State8 Counter
 
 struct {
 	ImageRecognitionRes img;
@@ -118,6 +121,8 @@ struct {
 int TurnTimes = 0;
 
 int BallCatch = 0;
+
+uint8_t TimeOut = 0;
 
 
 /* USER CODE END PV */
@@ -219,41 +224,44 @@ int main(void)
 		  CurrentInfo.dist_L = Distance_L;
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
-		  if(CurrentInfo.angle >= -33 && CurrentInfo.angle <= 147)
-			  CurrentInfo.angle += 33;
-		  else
-			  CurrentInfo.angle -= 327;
 
 		  set_ccr(0, 0);
 		  Open_PID = 0;
 
 //		  State = 6;
-		  BallCatch = 10;
+//		  BallCatch = 10;
 #if 1
 		  if(CatchBallSubState != 1)
-			  State = 4;
-		  else if(CurrentInfo.img.find_ball == 0)
 		  {
+			  TurnTimes = 0;
+			  State = 4;
+		  }
+		  else if(CurrentInfo.img.find_ball == 0 && TurnTimes <= NO_BALL)
+		  {
+			  TurnTimes++;
 			  State = 1;
 			  CatchBallSubState = 1;
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && (CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance < BALL_FAR_DIST) )
 		  {
+			  TurnTimes = 0;
 			  State = 2;
 			  CatchBallSubState = 1;
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+5)
 		  {
+			  TurnTimes = 0;
 			  State = 4;
 		  //			  CatchBallSubState = 1;
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && ((CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST) || CurrentInfo.img.distance >= BALL_FAR_DIST))
 		  {
+			  TurnTimes = 0;
 			  State = 3;
 			  CatchBallSubState = 1;
 		  }
 
-		  if(BallCatch >= 9)
+		  if(BallCatch >= 9 || TurnTimes > NO_BALL || TimeOut == 1)
 		  {
 			  State = 6;
 			  CatchBallSubState = 1;
@@ -261,7 +269,9 @@ int main(void)
 			  {
 				  ReturnSubState = 1;
 			  }
-			  else if(CurrentInfo.img.find_green == 1 && ((CurrentInfo.dist_R <= 20 && CurrentInfo.dist_L <= 40) || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
+			  else if(CurrentInfo.img.find_green == 1 &&
+					  ((CurrentInfo.dist_R <= 25 && CurrentInfo.dist_L <= 45)
+							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
 			  {
 				  ReturnSubState = 3;
 			  }
@@ -273,15 +283,14 @@ int main(void)
 
 		  if(State != 4 && CurrentInfo.img.find_ball == 0 && (CurrentInfo.dist_L <= BOUNDARY_THRESHOLD || CurrentInfo.dist_R <= BOUNDARY_THRESHOLD) && BallCatch < 9)
 		  {
-			  State = 7;
 			  CatchBallSubState = 1;
 			  if(CurrentInfo.dist_L <= BOUNDARY_THRESHOLD)
-				  ObstacleSubState = 1;
+				  State = 7;
 			  else if(CurrentInfo.dist_R <= BOUNDARY_THRESHOLD)
-				  ObstacleSubState = 2;
+				  State = 8;
 		  }
 
-		  SendInt(CurrentInfo.img.find_green);
+		  SendInt(State);
 #endif
 
 		  switch(State)
@@ -430,6 +439,7 @@ int main(void)
 			  switch(ReturnSubState)
 			  {
 			  case 1:
+				  Servo_Control_DOWN(0);
 				  if(FindGreenSubState == 0)
 				  {
 					  if(ReturnCnt == 0)
@@ -466,37 +476,59 @@ int main(void)
 				  StateCnt = 0;
 				  break;
 			  case 3:
-				  Brake();
-				  Dump();
-				  Dump();
-				  BallCatch = 0;
-				  StateCnt = 0;
+				  if(ReturnCnt == 0)
+				  {
+					  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+					  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+				  }
+				  set_ccr(TURN_PWM, -TURN_PWM);
+				  Open_PID = 3;
+				  if(ReturnCnt++ == 6)
+				  {
+					  ReturnCnt = 0;
+					  Brake();
+					  Open_PID = 0;
+					  Servo_Control_DOWN(0);
+					  Dump();
+					  Dump();
+					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+					  HAL_Delay(500);
+					  Servo_Control_DOWN(2);
+					  TurnTimes = 0;
+					  BallCatch = 0;
+					  StateCnt = 0;
+				  }
 				  break;
 			  }
 			  break;
 		  case 7:	//State 7
 			  Servo_Cam(0);
-			  if(ObstacleCnt < 25)
+			  if(FrontObstacleCnt < 25)
 			  {
-				  switch(ObstacleSubState)
-				  {
-				  case 1:
-					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
-					  Open_PID = 0;
-					  break;
-				  case 2:
-					  set_ccr(TURN_PWM, -TURN_PWM);
-					  Open_PID = 3;
-					  break;
-				  }
-
+				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+				  Open_PID = 0;
 			  }
 			  else
 			  {
 				  set_ccr(0, 0);
 				  Open_PID = 0;
 				  StateCnt = 0;
-				  ObstacleCnt = 0;
+				  FrontObstacleCnt = 0;
+			  }
+			  break;
+		  case 8:
+			  Servo_Cam(0);
+			  if(RightObstacleCnt < 50)
+			  {
+				  set_ccr(TURN_PWM, -TURN_PWM);
+				  Open_PID = 0;
+			  }
+			  else
+			  {
+				  set_ccr(CRUISE_PWM, CRUISE_PWM);
+				  Open_PID = 0;
+				  StateCnt = 0;
+				  RightObstacleCnt = 0;
 			  }
 			  break;
 		  }

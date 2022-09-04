@@ -45,6 +45,8 @@
 int EncoderSysTickCnt = 0;
 int BluetoothSysTickCnt = 0;
 int StateSysTickCnt = 0;
+int TimeOutSysTickCnt = 0;
+extern uint8_t TimeOut;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -229,14 +231,10 @@ void SysTick_Handler(void)
 	  EncoderSysTickCnt++;
   }
 
-//  if(BluetoothSysTickCnt == 505)
-//  {
-//	  BluetoothSysTickCnt = 0;
-//	  SendInt((int)(EncoderDist_R*50));
-//	  SendInt((int)(EncoderDist_L*50));
-//  }
-//  else
-//	  BluetoothSysTickCnt++;
+  if(TimeOutSysTickCnt >= 780000)
+	  TimeOut = 1;
+  else
+	  TimeOutSysTickCnt++;
   /* USER CODE END SysTick_IRQn 1 */
 }
 

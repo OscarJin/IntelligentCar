@@ -35,7 +35,7 @@ extern float Distance_R;
 
 extern int State;
 extern int StateCnt;
-extern int CatchCnt, ReturnCnt, ObstacleCnt;
+extern int CatchCnt, ReturnCnt, FrontObstacleCnt, RightObstacleCnt;
 
 /* USER CODE END 0 */
 
@@ -760,7 +760,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			if(State == 4)
 				CatchCnt++;
 			if(State == 7)
-				ObstacleCnt++;
+				FrontObstacleCnt++;
+			if(State == 8)
+				RightObstacleCnt++;
 	}
 
 	if(htim->Instance == TIM3)

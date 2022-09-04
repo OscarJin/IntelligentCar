@@ -28,5 +28,6 @@ ImageRecognitionRes Decode(uint8_t *str)
 
     res.find_green = copy[11] - '0';
 
+    free(copy);
 	return res;
 }

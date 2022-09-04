@@ -761,8 +761,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				CatchCnt++;
 			if(State == 7)
 				FrontObstacleCnt++;
-			if(State == 8)
-				RightObstacleCnt++;
 	}
 
 	if(htim->Instance == TIM3)

@@ -225,6 +225,9 @@ int main(void)
 		  CurrentInfo.dist_R = Distance_R;
 		  CurrentInfo.angle = Get_Angle_IMU();
 
+		  if(CurrentInfo.angle < 0)
+			  CurrentInfo.angle += 360;
+
 		  set_ccr(0, 0);
 		  Open_PID = 0;
 
@@ -265,10 +268,18 @@ int main(void)
 		  {
 			  State = 6;
 			  CatchBallSubState = 1;
-			  if(CurrentInfo.img.find_green == 0)
+#if 0	//左下角用这段
+			  if(CurrentInfo.img.find_green == 0 || (CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
 			  {
 				  ReturnSubState = 1;
 			  }
+#endif
+#if 1	//右上角用这段
+			  if(CurrentInfo.img.find_green == 0 || (CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
+			  {
+				  ReturnSubState = 1;
+			  }
+#endif
 			  else if(CurrentInfo.img.find_green == 1 &&
 					  ((CurrentInfo.dist_R <= 25 && CurrentInfo.dist_L <= 45)
 							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
@@ -289,6 +300,9 @@ int main(void)
 			  else if(CurrentInfo.dist_R <= BOUNDARY_THRESHOLD)
 				  State = 8;
 		  }
+
+		  if(RightObstacleCnt != 0)
+			  State = 8;
 
 		  SendInt(State);
 #endif
@@ -518,7 +532,7 @@ int main(void)
 			  break;
 		  case 8:
 			  Servo_Cam(0);
-			  if(RightObstacleCnt < 50)
+			  if(RightObstacleCnt++ < 50)
 			  {
 				  set_ccr(TURN_PWM, -TURN_PWM);
 				  Open_PID = 0;

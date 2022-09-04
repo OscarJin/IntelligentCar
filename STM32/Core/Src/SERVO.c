@@ -47,7 +47,7 @@ void Dump()
 //	Servo_Control_DOWN(0);
 //	HAL_Delay(500);
 	Servo_Control_UP(1);
-	HAL_Delay(3000);
+	HAL_Delay(2000);
 	Servo_Control_UP(0);
 //	Servo_Control_DOWN(2);
 }

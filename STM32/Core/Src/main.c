@@ -40,7 +40,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BOUNDARY_THRESHOLD 5
-#define FAR_BOUNDARY_THRESHOLD 30
+#define FAR_BOUNDARY_THRESHOLD 80
 #define BALL_ANGLE_THRESHOLD 7.5
 #define BALL_BLIND_DIST 18
 #define BALL_FAR_DIST 60
@@ -251,7 +251,7 @@ int main(void)
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && (CurrentInfo.img.angle > BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance < BALL_FAR_DIST) )
 		  {
-			  TurnTimes = 0;
+//			  TurnTimes = 0;
 			  State = 2;
 			  CatchBallSubState = 1;
 		  }
@@ -259,11 +259,10 @@ int main(void)
 		  {
 			  TurnTimes = 0;
 			  State = 4;
-		  //			  CatchBallSubState = 1;
 		  }
 		  else if(CurrentInfo.img.find_ball == 1 && ((CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance > BALL_BLIND_DIST) || CurrentInfo.img.distance >= BALL_FAR_DIST))
 		  {
-			  TurnTimes = 0;
+//			  TurnTimes = 0;
 			  State = 3;
 			  CatchBallSubState = 1;
 		  }
@@ -279,9 +278,9 @@ int main(void)
 			  }
 #endif
 #if 0	//右上角用这段
-			  if(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250)
+			  if(!(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
 			  {
-				  GoFarSubState = 2;
+				  GoFarSubState = 1;
 			  }
 #endif
 			  else if(CurrentInfo.dist_L > FAR_BOUNDARY_THRESHOLD)
@@ -312,8 +311,8 @@ int main(void)
 			  }
 #endif
 			  else if(CurrentInfo.img.find_green == 1 &&
-					  ((CurrentInfo.dist_R <= 20 && CurrentInfo.dist_L <= 40)
-							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 22)))
+					  ((CurrentInfo.dist_R <= 22 && CurrentInfo.dist_L <= 40)
+							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
 			  {
 				  ReturnSubState = 3;
 			  }

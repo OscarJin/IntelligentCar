@@ -40,6 +40,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BOUNDARY_THRESHOLD 5
+#define FAR_BOUNDARY_THRESHOLD 30
 #define BALL_ANGLE_THRESHOLD 7.5
 #define BALL_BLIND_DIST 18
 #define BALL_FAR_DIST 60
@@ -85,7 +86,7 @@ int State;
  * 2-turn and target
  * 3-approach
  * 4-catch
- * 5-?
+ * 5-Go Far
  * 6-Return
  * 7-Front Obstacle, back
  * 8-Right Obstacle, left
@@ -93,6 +94,7 @@ int State;
 int FindBallSubState = 0;	//State1 Sub
 int TargetSubState = 0;	//State2 Sub
 int CatchBallSubState = 1;	//State4 Sub
+int GoFarSubState = 1;	//State5 Sub
 int ReturnSubState = 1;	//State6 Sub
 int FindGreenSubState = 0;	//State 6 Find Sub
 //int ObstacleSubState = 1;	//State 7 Sub
@@ -107,6 +109,8 @@ int StateCnt = 0;
 int FindCnt = 0;	//State1 Counter
 int TargetCnt = 0;	//State 2 Counter
 int CatchCnt = 0;	//State4 Counter
+int GoFarCnt = 0;	//State5 Counter
+uint8_t ReturnFlag = 0;	//State6 Flag
 int ReturnCnt = 0;	//State6 Counter
 int FrontObstacleCnt = 0;	//State7 Counter
 int RightObstacleCnt = 0;	//State8 Counter
@@ -264,25 +268,52 @@ int main(void)
 			  CatchBallSubState = 1;
 		  }
 
-		  if(BallCatch >= 9 || TurnTimes > NO_BALL || TimeOut == 1)
+		  if((BallCatch >= 9 || TurnTimes > NO_BALL || TimeOut == 1) && ReturnFlag == 0)
+		  {
+			  State = 5;
+			  CatchBallSubState = 1;
+#if 1	//左下角用这段
+			  if(!(CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
+			  {
+				  GoFarSubState = 1;
+			  }
+#endif
+#if 0	//右上角用这段
+			  if(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250)
+			  {
+				  GoFarSubState = 2;
+			  }
+#endif
+			  else if(CurrentInfo.dist_L > FAR_BOUNDARY_THRESHOLD)
+			  {
+				  GoFarSubState = 2;
+			  }
+			  else
+			  {
+				  ReturnFlag = 1;
+			  }
+
+		  }
+
+		  if(ReturnFlag == 1)
 		  {
 			  State = 6;
 			  CatchBallSubState = 1;
-#if 0	//左下角用这段
-			  if(CurrentInfo.img.find_green == 0 || (CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
+#if 1	//左下角用这段
+			  if(CurrentInfo.img.find_green == 0 || !(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
 			  {
 				  ReturnSubState = 1;
 			  }
 #endif
-#if 1	//右上角用这段
-			  if(CurrentInfo.img.find_green == 0 || (CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
+#if 0	//右上角用这段
+			  if(CurrentInfo.img.find_green == 0 || !(CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
 			  {
 				  ReturnSubState = 1;
 			  }
 #endif
 			  else if(CurrentInfo.img.find_green == 1 &&
-					  ((CurrentInfo.dist_R <= 25 && CurrentInfo.dist_L <= 45)
-							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
+					  ((CurrentInfo.dist_R <= 20 && CurrentInfo.dist_L <= 40)
+							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 22)))
 			  {
 				  ReturnSubState = 3;
 			  }
@@ -449,6 +480,25 @@ int main(void)
 				  break;
 			  }
 			  break;
+		  case 5:	//State 5
+			  switch(GoFarSubState)
+			  {
+			  case 1:
+				  Encoder_PID_init(&EncoderPID_L, TURN_PWM, TURN_VELOCITY);
+				  Encoder_PID_init(&EncoderPID_R, TURN_PWM, TURN_VELOCITY);
+				  set_ccr(TURN_PWM, -TURN_PWM);
+				  Open_PID = 3;
+				  StateCnt = 0;
+				  break;
+			  case 2:
+				  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
+				  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
+				  set_ccr(CRUISE_PWM, CRUISE_PWM);
+				  Open_PID = 1;
+				  StateCnt = 0;
+				  break;
+			  }
+			  break;
 		  case 6:	//State 6
 			  switch(ReturnSubState)
 			  {
@@ -510,6 +560,7 @@ int main(void)
 					  Servo_Control_DOWN(2);
 					  TurnTimes = 0;
 					  BallCatch = 0;
+					  ReturnFlag = 0;
 					  StateCnt = 0;
 				  }
 				  break;

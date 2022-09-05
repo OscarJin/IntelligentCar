@@ -40,7 +40,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define BOUNDARY_THRESHOLD 5
-#define FAR_BOUNDARY_THRESHOLD 80
+#define FAR_BOUNDARY_THRESHOLD 40
 #define BALL_ANGLE_THRESHOLD 7.5
 #define BALL_BLIND_DIST 18
 #define BALL_FAR_DIST 60
@@ -267,12 +267,12 @@ int main(void)
 			  CatchBallSubState = 1;
 		  }
 
-		  if((BallCatch >= 9 || TurnTimes > NO_BALL || TimeOut == 1) && ReturnFlag == 0)
+		  if((BallCatch >= 12 || TurnTimes > NO_BALL || TimeOut == 1) && ReturnFlag == 0)
 		  {
 			  State = 5;
 			  CatchBallSubState = 1;
 #if 1	//左下角用这段
-			  if(!(CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
+			  if(!(CurrentInfo.angle >= 270 && CurrentInfo.angle <= 350))
 			  {
 				  GoFarSubState = 1;
 			  }
@@ -314,7 +314,10 @@ int main(void)
 					  ((CurrentInfo.dist_R <= 22 && CurrentInfo.dist_L <= 40)
 							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
 			  {
-				  ReturnSubState = 3;
+				  if(CurrentInfo.dist_R <= 22 && CurrentInfo.dist_L <= 40)
+					  ReturnSubState = 3;
+				  else
+					  ReturnSubState = 4;
 			  }
 			  else
 			  {
@@ -553,7 +556,6 @@ int main(void)
 					  Open_PID = 0;
 					  Servo_Control_DOWN(0);
 					  Dump();
-					  Dump();
 					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
 					  HAL_Delay(500);
 					  Servo_Control_DOWN(2);
@@ -562,6 +564,20 @@ int main(void)
 					  ReturnFlag = 0;
 					  StateCnt = 0;
 				  }
+				  break;
+			  case 4:
+				  ReturnCnt = 0;
+				  Brake();
+				  Open_PID = 0;
+				  Servo_Control_DOWN(0);
+				  Dump();
+				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+				  HAL_Delay(500);
+				  Servo_Control_DOWN(2);
+				  TurnTimes = 0;
+				  BallCatch = 0;
+				  ReturnFlag = 0;
+				  StateCnt = 0;
 				  break;
 			  }
 			  break;

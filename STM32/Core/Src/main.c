@@ -312,7 +312,7 @@ int main(void)
 #endif
 			  else if(CurrentInfo.img.find_green == 1 &&
 					  ((CurrentInfo.dist_R <= 22 && CurrentInfo.dist_L <= 40)
-							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 25)))
+							  || (CurrentInfo.dist_R > 50 && CurrentInfo.dist_L <= 22)))
 			  {
 				  if(CurrentInfo.dist_R <= 22 && CurrentInfo.dist_L <= 40)
 					  ReturnSubState = 3;
@@ -450,7 +450,7 @@ int main(void)
 //				  }
 //				  break;
 			  case 3:
-				  if(CatchCnt < 18)
+				  if(CatchCnt < 15)
 				  {
 					  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
 					  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);

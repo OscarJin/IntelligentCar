@@ -46,7 +46,8 @@ int EncoderSysTickCnt = 0;
 int BluetoothSysTickCnt = 0;
 int StateSysTickCnt = 0;
 int TimeOutSysTickCnt = 0;
-extern uint8_t TimeOut;
+int DumpSysTickCnt = 0;
+extern uint8_t TimeOut, DumpFlag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -230,6 +231,11 @@ void SysTick_Handler(void)
   {
 	  EncoderSysTickCnt++;
   }
+
+  if(DumpSysTickCnt >= 570000)
+	  DumpFlag = 1;
+  else
+	  DumpSysTickCnt++;
 
   if(TimeOutSysTickCnt >= 420000)
 	  TimeOut = 1;

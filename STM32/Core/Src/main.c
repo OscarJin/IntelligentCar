@@ -50,7 +50,7 @@
 #define CRUISE_VELOCITY 0.3
 #define TURN_VELOCITY 0.25
 #define DESTINATION_DIST 25
-#define NO_BALL 300
+#define NO_BALL 450
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -127,6 +127,8 @@ int TurnTimes = 0;
 int BallCatch = 0;
 
 uint8_t TimeOut = 0;
+
+uint8_t DumpFlag = 0;
 
 
 /* USER CODE END PV */
@@ -570,14 +572,18 @@ int main(void)
 				  Brake();
 				  Open_PID = 0;
 				  Servo_Control_DOWN(0);
-				  Dump();
-				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
-				  HAL_Delay(500);
-				  Servo_Control_DOWN(2);
-				  TurnTimes = 0;
-				  BallCatch = 0;
-				  ReturnFlag = 0;
-				  StateCnt = 0;
+				  if(DumpFlag == 1)
+				  {
+					  Dump();
+					  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
+					  HAL_Delay(500);
+					  Servo_Control_DOWN(2);
+					  TurnTimes = 0;
+					  BallCatch = 0;
+					  ReturnFlag = 0;
+					  StateCnt = 0;
+				  }
+
 				  break;
 			  }
 			  break;

@@ -42,12 +42,12 @@
 #define BOUNDARY_THRESHOLD 5
 #define FAR_BOUNDARY_THRESHOLD 40
 #define BALL_ANGLE_THRESHOLD 7.5
-#define BALL_BLIND_DIST 18
+#define BALL_BLIND_DIST 25
 #define BALL_FAR_DIST 60
-#define CRUISE_PWM 550
+#define CRUISE_PWM 700
 #define TURN_PWM 700
 #define DUMP_THRESHOLD 20
-#define CRUISE_VELOCITY 0.2
+#define CRUISE_VELOCITY 0.3
 #define TURN_VELOCITY 0.25
 #define DESTINATION_DIST 25
 #define NO_BALL 300
@@ -255,7 +255,7 @@ int main(void)
 			  State = 2;
 			  CatchBallSubState = 1;
 		  }
-		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+5)
+		  else if(CurrentInfo.img.find_ball == 1 && CurrentInfo.img.angle <= BALL_ANGLE_THRESHOLD && CurrentInfo.img.distance <= BALL_BLIND_DIST+10)
 		  {
 			  TurnTimes = 0;
 			  State = 4;
@@ -267,18 +267,18 @@ int main(void)
 			  CatchBallSubState = 1;
 		  }
 
-		  if((BallCatch >= 12 || TurnTimes > NO_BALL || TimeOut == 1) && ReturnFlag == 0)
+		  if((BallCatch >= 999 || TurnTimes > NO_BALL || TimeOut == 1) && ReturnFlag == 0)
 		  {
 			  State = 5;
 			  CatchBallSubState = 1;
-#if 1	//左下角用这段
+#if 0	//左下角用这段
 			  if(!(CurrentInfo.angle >= 270 && CurrentInfo.angle <= 350))
 			  {
 				  GoFarSubState = 1;
 			  }
 #endif
-#if 0	//右上角用这段
-			  if(!(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
+#if 1	//右上角用这段
+			  if(!(CurrentInfo.angle >= 100 && CurrentInfo.angle <= 160))
 			  {
 				  GoFarSubState = 1;
 			  }
@@ -298,13 +298,13 @@ int main(void)
 		  {
 			  State = 6;
 			  CatchBallSubState = 1;
-#if 1	//左下角用这段
+#if 0	//左下角用这段
 			  if(CurrentInfo.img.find_green == 0 || !(CurrentInfo.angle >= 150 && CurrentInfo.angle <= 250))
 			  {
 				  ReturnSubState = 1;
 			  }
 #endif
-#if 0	//右上角用这段
+#if 1	//右上角用这段
 			  if(CurrentInfo.img.find_green == 0 || !(CurrentInfo.angle <= 120 || CurrentInfo.angle >= 290))
 			  {
 				  ReturnSubState = 1;
@@ -450,7 +450,7 @@ int main(void)
 //				  }
 //				  break;
 			  case 3:
-				  if(CatchCnt < 15)
+				  if(CatchCnt < 10)
 				  {
 					  Encoder_PID_init(&EncoderPID_L, CRUISE_PWM, CRUISE_VELOCITY);
 					  Encoder_PID_init(&EncoderPID_R, CRUISE_PWM, CRUISE_VELOCITY);
@@ -583,7 +583,7 @@ int main(void)
 			  break;
 		  case 7:	//State 7
 			  Servo_Cam(0);
-			  if(FrontObstacleCnt < 25)
+			  if(FrontObstacleCnt < 16)
 			  {
 				  set_ccr(-CRUISE_PWM, -CRUISE_PWM);
 				  Open_PID = 0;

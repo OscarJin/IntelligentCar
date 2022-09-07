@@ -231,7 +231,7 @@ void SysTick_Handler(void)
 	  EncoderSysTickCnt++;
   }
 
-  if(TimeOutSysTickCnt >= 780000)
+  if(TimeOutSysTickCnt >= 420000)
 	  TimeOut = 1;
   else
 	  TimeOutSysTickCnt++;
